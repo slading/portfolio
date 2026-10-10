@@ -30,7 +30,7 @@ npm run verify       # check + build + dist checks
 src/
   i18n/          en.ts (default), pl.ts (typed to match en), index.ts (lookup, storage keys)
   data/          projects.ts (featured/additional projects, links, email), stack.ts (tech tiles),
-                 music.ts (the single My Rotation track, with verified metadata), github-contributions.json (generated snapshot)
+                 music.ts (the single Now Playing track, with verified metadata), github-contributions.json (generated snapshot)
   layouts/       Base.astro (head, theme-before-paint script, column, search dialog)
   components/    Nav, Hero, MusicPlayer, TechStack, Approach, Projects, GitHubActivity,
                  Footer, SearchDialog
@@ -68,23 +68,31 @@ If the fetch fails, the script exits with an error and leaves the existing file 
 - Default language is **English**. Visitors can switch to Polish with the EN/PL control in the footer. The choice is stored in `localStorage` (`portfolio-language`).
 - Theme follows the system preference until the visitor toggles it. The choice is stored as `portfolio-theme`.
 
-## My Rotation (Hero music player)
+## Now Playing (Hero music player)
 
-The Hero shows one track, **Lolibox by Sewerslvt**, in a full-width card the width of the content column. Title and artist are exact, and the Spotify track ID is in `src/data/music.ts`.
+The Hero shows one track, **Lolibox by Sewerslvt**, in a full-width card the width of the content column. The card is labelled NOW PLAYING. Title and artist are exact, and the Spotify track ID is in `src/data/music.ts`. The title links to the track on Spotify.
+
+**Audio:** `public/music/track.mp3` is the owner's file, committed to the repository.
+
+- Format: MPEG-1 Layer III, 320 kbps CBR, 44.1 kHz, stereo, 20.4 MB, no ID3 tags.
+- Duration: **510.093 s (8:30)**, confirmed from the header and by decoding the whole file.
+- The browser loads it only when the visitor presses play (`preload="none"`). Until then the total shows `--:--`. Nothing autoplays.
+
+The player has a large play/pause button, a long seek bar, and a time readout showing the real elapsed and total duration. An equalizer shows only while the audio element reports playback. There are no previous or next controls.
 
 The card has two states, decided at build time:
 
-- **Audio file present** (`public/music/track.mp3`): a native HTML5 player with a large play/pause button, a long seek bar and a time readout showing the real elapsed and total duration. An equalizer shows only while the audio element reports playback. The file loads only when the visitor presses play (`preload="none"`), and nothing autoplays.
-- **Audio file missing:** the same layout appears with the play button and seek bar disabled and the note "Audio file not published yet." The player is never silently replaced by a link. "Open in Spotify" stays available as a secondary action.
+- **Audio file present** (`public/music/track.mp3`): the player described above.
+- **Audio file missing:** the same layout appears with the play button and seek bar disabled and the note "Audio file not published yet." The player is never silently replaced by a link. The title still links to Spotify.
 
 The site never uses Spotify's embed, its iFrame API, or a 30-second preview.
 
 **Artwork:** if `public/music/cover.jpg` exists it is used. Otherwise Spotify's own cover image for the track is shown. If that image cannot load, a neutral icon is shown instead.
 
-**Adding the audio:**
-1. Place the file at `public/music/track.mp3` (MP3: the owner's own recording, or one licensed for this use).
+**Replacing the audio:**
+1. Replace `public/music/track.mp3` (MP3: the owner's own recording, or one licensed for this use).
 2. Optionally place a square cover at `public/music/cover.jpg`.
-3. Rebuild. `scripts/verify-dist.mjs` checks the file is an MP3, that it is copied to `dist/`, and that the player is enabled.
+3. Rebuild. `scripts/verify-dist.mjs` checks that the file is an MP3, that it is copied to `dist/`, and that the player is enabled.
 
 ## Subpages
 

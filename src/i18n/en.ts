@@ -59,13 +59,12 @@ export const en = {
   },
 
   music: {
-    kicker: 'My Rotation',
+    kicker: 'Now playing',
     play: 'Play',
     pause: 'Pause',
     seek: 'Seek',
     error: 'The audio could not be played here. Use “Open in Spotify” instead.',
     missing: 'Audio file not published yet.',
-    openSpotify: 'Open in Spotify',
   },
 
   tech: {

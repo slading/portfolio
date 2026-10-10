@@ -8,7 +8,7 @@ import { getLang, LANGUAGE_EVENT } from './language';
  * - Nothing loads until the visitor presses play (preload="none"). Nothing autoplays.
  * - The equalizer, time and seek position come only from the element's own events.
  *   The player never shows a playing state that the audio element does not report.
- * - A missing or unplayable file shows a message. The Spotify link stays available.
+ * - A missing or unplayable file shows a message. The title keeps its Spotify link.
  */
 type PlayState = 'idle' | 'playing' | 'paused' | 'error';
 

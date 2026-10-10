@@ -141,7 +141,9 @@ check(musicDecoded.includes(`${expectedTitle}</a>`), 'title "Lolibox" rendered')
 check(musicDecoded.includes(`<span class="rotation-artist">${expectedArtist}</span>`), 'artist "Sewerslvt" rendered');
 const musicAnchors = [...musicHtml.matchAll(/<a\b[^>]*>/g)].map((m) => m[0]);
 const openHrefs = musicAnchors.filter((a) => /rotation-(open|title)/.test(a)).map((a) => (a.match(/href="([^"]+)"/) || [])[1]);
-check(openHrefs.length === 2 && openHrefs.every((h) => h === `https://open.spotify.com/track/${expectedSpotifyId}`), 'Open in Spotify and title link point to the Lolibox track');
+check(openHrefs.length === 1 && openHrefs.every((h) => h === `https://open.spotify.com/track/${expectedSpotifyId}`), 'title is the only Spotify link and points to the Lolibox track');
+check(!/Open in Spotify|openSpotify|rotation-open/.test(musicHtml), 'no redundant "Open in Spotify" link in the music card');
+check(/class="rotation-label"[^>]*>Now playing</.test(musicHtml), 'label reads "Now playing" (English)');
 const imgSrcs = [...musicHtml.matchAll(/<img\b[^>]*src="([^"]+)"/g)].map((m) => m[1]);
 check(imgSrcs.every((s) => /^https:\/\/image-cdn-(ak|fa)\.spotifycdn\.com\//.test(s) || /^\/?music\/cover\.jpg$|\/music\/cover\.jpg$/.test(s)), 'artwork: Spotify CDN, or owner cover.jpg only');
 check(!/rotation-slide[^"]*"[^>]*hidden|data-music-slide/.test(musicHtml), 'no leftover multi-track slide markup');
@@ -156,6 +158,7 @@ check(!/aria-pressed/.test(musicHtml), 'no pressed-state toggle in the music car
 const audioPresent = existsSync(join(root, 'public/music/track.mp3'));
 if (audioPresent) {
   check(/<audio\b[^>]*data-music-audio[^>]*preload="none"/.test(musicHtml), 'audio: native <audio>, preload="none" (nothing loads until play)');
+  check(!/Audio file not published yet/.test(musicHtml), 'audio: "not published yet" message not shown');
   check(!/<audio\b[^>]*autoplay/i.test(musicHtml), 'audio: no autoplay');
   check(/<audio\b[^>]*src="[^"]*music\/track\.mp3"/.test(musicHtml), 'audio: src points to music/track.mp3');
   check(/data-music-play/.test(musicHtml) && /data-music-seek/.test(musicHtml), 'audio: play/pause and seek controls present');
@@ -172,7 +175,7 @@ if (audioPresent) {
   check(!/<audio[\s>]/i.test(html), 'no audio file: no <audio> element');
   check(/data-music-play[^>]*\sdisabled/.test(musicHtml) && /data-music-seek[^>]*\sdisabled/.test(musicHtml), 'no audio file: play and seek are disabled (not live)');
   check(/class="music-status is-missing"[^>]*>Audio file not published yet\./.test(musicHtml), 'no audio file: explicit "not published yet" note shown');
-  check(/rotation-open/.test(musicHtml), 'no audio file: Spotify link still available as a secondary action');
+  check(/rotation-title/.test(musicHtml), 'no audio file: title still links to Spotify');
 }
 
 // Full-width player: no width cap inherited from the old compact card.

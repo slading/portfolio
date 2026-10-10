@@ -729,20 +729,6 @@ p {
   text-overflow: ellipsis;
 }
 
-.rotation-open {
-  align-self: flex-start;
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--ink-2);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-color: var(--line-strong);
-}
-.rotation-open:hover {
-  color: var(--ink);
-  text-decoration-color: var(--ink);
-}
-
 /* Player row: play/pause, long seek bar, time. */
 .player {
   display: grid;
@@ -893,7 +879,6 @@ p {
 }
 
 .rotation-title:focus-visible,
-.rotation-open:focus-visible,
 .play-btn:focus-visible,
 .music-seek:focus-visible {
   outline: 2px solid var(--ink);

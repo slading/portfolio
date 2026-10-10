@@ -1,5 +1,5 @@
 /**
- * "My Rotation": the single track shown in the Hero.
+ * "Now Playing": the single track shown in the Hero.
  *
  * Title and artist are exact. Artwork is Spotify's own cover URL, checked against Spotify's public
  * oEmbed. It is only an image: nothing plays from Spotify. The audio is the owner's own file at
