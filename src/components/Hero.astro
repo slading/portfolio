@@ -1,0 +1,53 @@
+---
+import { DEFAULT_LANG, marqueeLine, messages, t } from '../i18n';
+import { assets } from '../data/projects';
+
+const footer = messages[DEFAULT_LANG].hero.footer;
+const base = import.meta.env.BASE_URL;
+---
+
+<section class="hero" id="home" aria-labelledby="hero-title">
+  <div class="container">
+    <div class="hero-top mono">
+      <span data-i18n="hero.eyebrow">{t('hero.eyebrow')}</span>
+      <span data-i18n="hero.scroll">{t('hero.scroll')}</span>
+    </div>
+
+    <a class="availability" href="#contact">
+      <span class="dot" aria-hidden="true"></span>
+      <span data-i18n="hero.availability">{t('hero.availability')}</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+
+    <h1 id="hero-title" class="hero-title" data-depth="0.18" data-i18n-html="hero.titleHtml" set:html={t('hero.titleHtml')} />
+
+    <div class="grid hero-bottom">
+      <div class="mascot-cell" data-tilt>
+        <img
+          class="mascot"
+          src={`${base}${assets.mascot}`}
+          alt=""
+          width="512"
+          height="330"
+          decoding="async"
+        />
+      </div>
+
+      <div class="hero-copy">
+        <p class="lead" data-i18n="hero.lead">{t('hero.lead')}</p>
+        <a class="arrow-cta" href="#works" data-i18n-html="hero.ctaHtml" set:html={t('hero.ctaHtml')} />
+      </div>
+
+      <div class="hero-footer" data-depth="0.35">
+        <span data-i18n="hero.footer.0">{footer[0]}</span>
+        <span data-i18n="hero.footer.1">{footer[1]}</span>
+        <span data-i18n="hero.footer.2">{footer[2]}</span>
+        <span class="scroll-hint" data-i18n-html="hero.scrollExploreHtml" set:html={t('hero.scrollExploreHtml')} />
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track" data-i18n-marquee="hero.footer">{marqueeLine(footer)}</div>
+</div>

@@ -1,0 +1,12 @@
+---
+import { DEFAULT_LANG, t } from '../i18n';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <span>ŻENIA●BUKA © {year}</span>
+    <span data-i18n="ui.footerRights">{t('ui.footerRights', DEFAULT_LANG)}</span>
+  </div>
+</footer>

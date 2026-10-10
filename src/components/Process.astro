@@ -1,0 +1,30 @@
+---
+import { DEFAULT_LANG, messages, t } from '../i18n';
+
+const steps = messages[DEFAULT_LANG].process.steps;
+---
+
+<section class="section" aria-labelledby="process-title">
+  <div class="container grid">
+    <div class="col-4 reveal">
+      <div class="section-head">
+        <span class="kicker" id="process-title" data-i18n="process.kicker">{t('process.kicker')}</span>
+      </div>
+      <p class="process-copy" data-i18n="process.copy">{t('process.copy')}</p>
+    </div>
+
+    <ol class="steps reveal" role="list">
+      {
+        steps.map((step, i) => (
+          <li class="step">
+            <span class="num">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <h3 data-i18n={`process.steps.${i}.title`}>{step.title}</h3>
+              <p data-i18n={`process.steps.${i}.text`}>{step.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

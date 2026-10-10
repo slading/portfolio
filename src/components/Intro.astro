@@ -1,0 +1,13 @@
+---
+import { t } from '../i18n';
+---
+
+<section class="section reveal" aria-labelledby="intro-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker" data-i18n="intro.kicker">{t('intro.kicker')}</span>
+      <span class="kicker" data-i18n="intro.aside">{t('intro.aside')}</span>
+    </div>
+    <p id="intro-title" class="statement" data-i18n-html="intro.statementHtml" set:html={t('intro.statementHtml')} />
+  </div>
+</section>

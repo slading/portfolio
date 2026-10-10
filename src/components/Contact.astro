@@ -1,0 +1,22 @@
+---
+import { DEFAULT_LANG, t } from '../i18n';
+import { contactEmail } from '../data/projects';
+---
+
+<section class="section contact" id="contact" aria-labelledby="contact-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker" data-i18n="contact.kicker">{t('contact.kicker', DEFAULT_LANG)}</span>
+      <span class="kicker" data-i18n="contact.aside">{t('contact.aside', DEFAULT_LANG)}</span>
+    </div>
+
+    <h2 id="contact-title" data-i18n-html="contact.titleHtml" set:html={t('contact.titleHtml', DEFAULT_LANG)} />
+
+    <div class="grid contact-bottom">
+      <a class="contact-email" href={`mailto:${contactEmail}`} data-i18n-aria="ui.emailAria" aria-label={t('ui.emailAria', DEFAULT_LANG)}>
+        {contactEmail} ↗
+      </a>
+      <p class="contact-note" data-i18n="contact.note">{t('contact.note', DEFAULT_LANG)}</p>
+    </div>
+  </div>
+</section>

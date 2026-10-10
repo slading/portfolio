@@ -1,0 +1,27 @@
+---
+import { DEFAULT_LANG, t } from '../i18n';
+import { tracks } from '../data/music';
+
+/**
+ * Fixed music control. Initial state is computed at build time from the
+ * configured tracks; the client script (src/scripts/music.ts) takes over from there.
+ * With no tracks configured the control is disabled and shows "ADD AUDIO FILE".
+ */
+const initialState = tracks.length > 0 ? 'idle' : 'empty';
+const initialLabel =
+  initialState === 'empty' ? t('music.add', DEFAULT_LANG) : t('music.off', DEFAULT_LANG);
+---
+
+<div class="music" data-music data-state={initialState} data-tracks={JSON.stringify(tracks)}>
+  <button
+    type="button"
+    class="music-toggle"
+    data-music-toggle
+    aria-pressed="false"
+    aria-label={initialState === 'empty' ? t('music.add', DEFAULT_LANG) : t('music.aria', DEFAULT_LANG)}
+    disabled={initialState === 'empty'}
+  >
+    <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="music-label" data-music-label>{initialLabel}</span>
+  </button>
+</div>
