@@ -8,6 +8,9 @@ import type { Messages } from './en';
 export const pl: Messages = {
   meta: {
     title: 'Yauheni Buka | AI-native Software / Product Engineer',
+    resumeTitle: 'CV | Yauheni Buka',
+    favouritesTitle: 'Ulubione filmy | Yauheni Buka',
+    notFoundTitle: 'Nie znaleziono strony | Yauheni Buka',
     description:
       'Inżynier oprogramowania i produktu AI-native. Systemy rezerwacji, narzędzia wspierane AI i studia przypadków inżynierskich.',
   },
@@ -21,6 +24,7 @@ export const pl: Messages = {
     themeLabelDark: 'ciemny',
     themeLabelLight: 'jasny',
     searchOpen: 'Szukaj',
+    searchButton: 'Szukaj ⌘K',
     searchShortcut: '⌘K',
     searchTitle: 'Szukaj',
     searchPlaceholder: 'Szukaj sekcji i projektów…',
@@ -61,7 +65,7 @@ export const pl: Messages = {
     play: 'Odtwórz',
     pause: 'Pauza',
     seek: 'Przewiń',
-    error: 'Nie udało się odtworzyć nagrania. Użyj linku „Otwórz w Spotify”.',
+    error: 'Nie udało się odtworzyć nagrania tutaj. Kliknij tytuł utworu, aby posłuchać go w Spotify.',
     missing: 'Plik audio nie jest jeszcze opublikowany.',
   },
 
@@ -191,9 +195,17 @@ export const pl: Messages = {
     more: 'Więcej',
     snapshot: 'Stan z {date}',
     unavailable: 'Dane o aktywności są teraz niedostępne.',
+    scrollLabel: 'Kalendarz aktywności na GitHub, przewijany w poziomie',
   },
 
   pages: {
+    notFound: {
+      title: 'Nie znaleziono strony',
+      intro: 'Strona, której szukasz, nie istnieje lub została przeniesiona.',
+      home: 'Wróć na stronę główną',
+      resume: 'CV',
+      favourites: 'Ulubione filmy',
+    },
     resume: {
       title: 'CV',
       intro: 'Moje CV w formie PDF: doświadczenie, edukacja i umiejętności.',

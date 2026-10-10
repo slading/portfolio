@@ -44,7 +44,8 @@ export const featured: Project[] = [
     status: 'prototype',
     statusKey: 'statusEngineeringPrototype',
     anchor: 'project-rfq',
-    links: [],
+    // Public repository, verified to exist (slading/ai-rfq-operations-agent). No live demo exists.
+    links: [{ label: 'github', href: 'https://github.com/slading/ai-rfq-operations-agent' }],
     stack: [],
   },
   {

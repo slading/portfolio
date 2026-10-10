@@ -11,7 +11,7 @@ const base = import.meta.env.BASE_URL;
 const hasPoster = (poster?: string) => Boolean(poster) && existsSync(join(process.cwd(), 'public', poster!));
 ---
 
-<Base title="Favourite Movies | Yauheni Buka">
+<Base titleKey="meta.favouritesTitle">
   <section class="page-head reveal show" aria-labelledby="fav-title">
     <h1 id="fav-title" class="page-title" data-i18n="pages.favourites.title">{t('pages.favourites.title')}</h1>
     <p class="page-intro" data-i18n="pages.favourites.intro">{t('pages.favourites.intro')}</p>

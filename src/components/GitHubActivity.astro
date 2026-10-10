@@ -23,7 +23,7 @@ const snapshot = data.fetchedAt.slice(0, 10);
     <span class="muted" data-i18n="github.snapshot" data-date={snapshot}>{t('github.snapshot').replace('{date}', snapshot)}</span>
   </div>
 
-  <div class="gh-scroll">
+  <div class="gh-scroll" tabindex="0" role="region" data-i18n-aria="github.scrollLabel" aria-label={t('github.scrollLabel')}>
     <div class="gh-grid" role="img" aria-label={t('github.caption').replace('{total}', String(data.total))}>
       {weeks.flatMap((week) =>
         week.days.map((day) => (

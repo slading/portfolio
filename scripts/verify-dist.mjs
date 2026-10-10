@@ -56,7 +56,7 @@ const resolveKey = (dict, path) =>
 
 console.log('Metadata');
 check(/<html[^>]*lang="en"/.test(html), 'html lang is en by default');
-check(/<title>[^<]+<\/title>/.test(html), 'title present');
+check(/<title[^>]*>[^<]+<\/title>/.test(html), 'title present');
 check(/<meta name="description" content="[^"]+"/.test(html), 'meta description present');
 check(/<link rel="canonical" href="https:\/\/exotision\.fun\/"/.test(html), 'canonical URL is https://exotision.fun/');
 check(/<meta property="og:url" content="https:\/\/exotision\.fun\/"/.test(html), 'og:url is https://exotision.fun/');
@@ -323,8 +323,81 @@ console.log('Project 04 card (text-first, no placeholders)');
   check(/>Engineering prototype</.test(rfq), 'Project 04 card: status "Engineering prototype"');
   check(rfq.includes('An engineering prototype for processing incoming requests for quotation (RFQs). Implemented so far: deterministic resolution of customer references, pricing, stock, delivery and discount rules, quote calculation, a blocking ledger, and an eligibility check for human review, stored in SQLite with append-only audit records. AI-assisted extraction and the human approval step are planned for future development.'), 'Project 04 card: owner description, verbatim');
   check(!/card-media/.test(rfq) && !/<img|<iframe/.test(rfq), 'Project 04 card: text-only (no image, no iframe)');
-  check(!/https?:\/\//.test(rfq), 'Project 04 card: no repository, live or demo URL invented');
+  const rfqUrls = [...rfq.matchAll(/https?:\/\/[^"'\s<]+/g)].map((m) => m[0]);
+  check(rfqUrls.length === 1 && rfqUrls[0] === 'https://github.com/slading/ai-rfq-operations-agent', 'Project 04 card: only the verified public repository link (no live demo invented)');
   check(!/>Production</.test(rfq) && !/status-production/.test(rfq), 'Project 04 card: no production claim');
+}
+
+console.log('Phase 5B: SEO, social, 404, accessibility, N2D default');
+{
+  const read = (rel) => readFileSync(join(dist, rel), 'utf8');
+  const exists = (rel) => { try { readFileSync(join(dist, rel)); return true; } catch { return false; } };
+  const idx = read('index.html');
+  const resumePage = read('resume/index.html');
+  const favPage = read('favourites/index.html');
+  const notFound = read('404.html');
+
+  // robots and sitemap
+  const robots = read('robots.txt');
+  check(/^User-agent: \*/m.test(robots) && /^Allow: \//m.test(robots), 'robots.txt: allows all crawlers');
+  check(robots.includes('Sitemap: https://exotision.fun/sitemap-index.xml'), 'robots.txt: points to the sitemap on the canonical domain');
+  const sitemapIndex = read('sitemap-index.xml');
+  check(sitemapIndex.includes('https://exotision.fun/sitemap-0.xml'), 'sitemap-index.xml: references sitemap-0.xml');
+  const sitemap = read('sitemap-0.xml');
+  for (const url of ['https://exotision.fun/', 'https://exotision.fun/resume/', 'https://exotision.fun/favourites/']) {
+    check(sitemap.includes(`<loc>${url}</loc>`), `sitemap lists ${url}`);
+  }
+  check(!sitemap.includes('404'), 'sitemap excludes the 404 page');
+  check(sitemap.split('<loc>').length - 1 === 3, 'sitemap lists exactly the three public pages');
+
+  // per-page titles (static, English) and the data hook the language script reads
+  check(/<title data-i18n-doc="meta\.title">Yauheni Buka \| AI-native Software \/ Product Engineer<\/title>/.test(idx), 'home title is the exact owner title');
+  check(/<title data-i18n-doc="meta\.resumeTitle">Resume \| Yauheni Buka<\/title>/.test(resumePage), 'resume has its own title');
+  check(/<title data-i18n-doc="meta\.favouritesTitle">Favourite Movies \| Yauheni Buka<\/title>/.test(favPage), 'favourites has its own title');
+  check(/<title data-i18n-doc="meta\.notFoundTitle">Page not found \| Yauheni Buka<\/title>/.test(notFound), '404 has its own title');
+
+  // Open Graph and Twitter card
+  const shareUrl = 'https://exotision.fun/og/exotision-share.png';
+  for (const [name, html] of [['home', idx], ['resume', resumePage], ['favourites', favPage], ['404', notFound]]) {
+    check(html.includes(`<meta property="og:image" content="${shareUrl}"`), `og:image is absolute on ${name}`);
+    check(html.includes('<meta name="twitter:card" content="summary_large_image"'), `twitter:card on ${name}`);
+    check(/<meta property="og:image:width" content="1200"/.test(html) && /<meta property="og:image:height" content="630"/.test(html), `og:image size declared on ${name}`);
+  }
+  check(/<meta property="og:title" content="Resume \| Yauheni Buka"/.test(resumePage), 'og:title matches the resume page title');
+  const png = readFileSync(join(dist, 'og/exotision-share.png'));
+  check(png.length > 0 && png.readUInt32BE(16) === 1200 && png.readUInt32BE(20) === 630, 'social image is a 1200 x 630 PNG');
+  check(png.length < 300_000, `social image under 300 KB (${png.length} bytes)`);
+  const discarded = (() => { try { return readFileSync(join(root, 'uploads/image-1.png')); } catch { return null; } })();
+  check(!discarded || !discarded.equals(png), 'social image is not the discarded cat sprite sheet');
+
+  // 404 page
+  check(/<meta name="robots" content="noindex"/.test(notFound), '404: noindex');
+  check(!/<link rel="canonical"/.test(notFound), '404: no canonical URL');
+  check(notFound.includes('href="/resume/"') && notFound.includes('href="/favourites/"') && notFound.includes('href="/"'), '404: links back to home, resume and favourites');
+
+  // Music error copy: no reference to a removed Spotify control, in any built file
+  const built = [];
+  const walkAll = (d) => { for (const e of readdirSync(d, { withFileTypes: true })) { const f = join(d, e.name); if (e.isDirectory()) walkAll(f); else if (/\.(html|js)$/.test(e.name)) built.push(f); } };
+  walkAll(dist);
+  const allText = built.map((f) => readFileSync(f, 'utf8')).join('\n');
+  check(!allText.includes('Open in Spotify') && !allText.includes('Otwórz w Spotify'), 'music error copy: no reference to a removed Spotify control');
+  check(allText.includes('Open the track title to listen on Spotify'), 'music error copy: points to the track title link (EN)');
+  check(allText.includes('Kliknij tytuł utworu, aby posłuchać go w Spotify'), 'music error copy: points to the track title link (PL)');
+
+  // Accessibility hooks in the static markup
+  check(/<button[^>]*class="kbd-btn"[^>]*aria-label="Search ⌘K"/.test(idx), 'search button accessible name contains the visible text');
+  check(/<div class="gh-scroll" tabindex="0" role="region" data-i18n-aria="github\.scrollLabel"/.test(idx), 'GitHub calendar is keyboard focusable and labelled');
+  const cssAll = cssText;
+  check(/\.status-production\{color:#166534/.test(cssAll.replace(/\s+/g, '')), 'production badge uses the darker light-theme green');
+
+  // N2D demo: English by default, Czech still selectable
+  const n2dApp = read('assets/n2d/app.js');
+  check(n2dApp.includes('getItem(LANGUAGE_KEY) === "cs" ? "cs" : "en"'), 'N2D demo defaults to English');
+  const n2dHtml = read('assets/n2d/customer.html');
+  check(n2dHtml.includes('<html lang="en">') && n2dHtml.includes('data-language="cs"') && n2dHtml.includes('data-language="en"'), 'N2D demo static markup is English with CS and EN switches');
+
+  // Project 04 repository link, and it is the only external link on the card
+  check(idx.includes('href="https://github.com/slading/ai-rfq-operations-agent"'), 'Project 04 card links to the verified public repository');
 }
 
 console.log(`\n${passes} passed, ${failures} failed`);

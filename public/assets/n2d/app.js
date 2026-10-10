@@ -256,7 +256,8 @@ const STRINGS = {
   }
 };
 
-let language = localStorage.getItem(LANGUAGE_KEY) === "en" ? "en" : "cs";
+// English by default. A visitor who chose Czech keeps it; the CS/EN switch still works.
+let language = localStorage.getItem(LANGUAGE_KEY) === "cs" ? "cs" : "en";
 function t(key, values = {}) {
   let value = STRINGS[language][key] ?? STRINGS.en[key] ?? key;
   Object.entries(values).forEach(([name, replacement]) => { value = value.replaceAll(`{${name}}`, String(replacement)); });

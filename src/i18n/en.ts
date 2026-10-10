@@ -10,6 +10,9 @@
 export const en = {
   meta: {
     title: 'Yauheni Buka | AI-native Software / Product Engineer',
+    resumeTitle: 'Resume | Yauheni Buka',
+    favouritesTitle: 'Favourite Movies | Yauheni Buka',
+    notFoundTitle: 'Page not found | Yauheni Buka',
     description:
       'AI-native software and product engineer. Booking systems, AI-assisted tools and engineering case studies.',
   },
@@ -23,6 +26,7 @@ export const en = {
     themeLabelDark: 'dark',
     themeLabelLight: 'light',
     searchOpen: 'Search',
+    searchButton: 'Search ⌘K',
     searchShortcut: '⌘K',
     searchTitle: 'Search',
     searchPlaceholder: 'Search sections and projects…',
@@ -63,7 +67,7 @@ export const en = {
     play: 'Play',
     pause: 'Pause',
     seek: 'Seek',
-    error: 'The audio could not be played here. Use “Open in Spotify” instead.',
+    error: 'The audio could not be played here. Open the track title to listen on Spotify.',
     missing: 'Audio file not published yet.',
   },
 
@@ -193,9 +197,17 @@ export const en = {
     more: 'More',
     snapshot: 'Snapshot from {date}',
     unavailable: 'Activity data is not available right now.',
+    scrollLabel: 'GitHub contribution calendar, scrolls horizontally',
   },
 
   pages: {
+    notFound: {
+      title: 'Page not found',
+      intro: 'The page you are looking for does not exist or has moved.',
+      home: 'Back to home',
+      resume: 'Resume',
+      favourites: 'Favourite Movies',
+    },
     resume: {
       title: 'Resume',
       intro: 'My CV in PDF form: experience, education and skills.',

@@ -31,10 +31,15 @@ function applyText(lang: Lang) {
   const root = document.documentElement;
 
   root.lang = lang;
-  document.title = dict.meta.title;
+  // Each page names its own title key in <title data-i18n-doc>. Home falls back to meta.title.
+  const docKey = document.querySelector<HTMLTitleElement>('title')?.dataset.i18nDoc ?? 'meta.title';
+  const pageTitle = tryLookup(lang, docKey);
+  document.title = pageTitle;
   setMeta('name', 'description', dict.meta.description);
-  setMeta('property', 'og:title', dict.meta.title);
+  setMeta('property', 'og:title', pageTitle);
   setMeta('property', 'og:description', dict.meta.description);
+  setMeta('name', 'twitter:title', pageTitle);
+  setMeta('name', 'twitter:description', dict.meta.description);
 
   document.querySelectorAll<HTMLElement>('[data-i18n]').forEach((el) => {
     // Placeholders such as {total} are filled from data-* attributes on the element.

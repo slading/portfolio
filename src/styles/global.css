@@ -479,8 +479,12 @@ p {
   background: currentColor;
 }
 .status-production {
-  color: var(--ok);
+  /* Darker than --ok so the small label reaches 4.5:1 on the pale fill (light theme). */
+  color: #166534;
   background: var(--ok-soft);
+}
+:root[data-theme='dark'] .status-production {
+  color: var(--ok);
 }
 .status-prototype {
   color: var(--accent);
