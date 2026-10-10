@@ -95,14 +95,12 @@ export const pl: Messages = {
     heading: 'Projekty',
     statusProduction: 'Produkcja',
     statusPrototype: 'Prototyp',
+    statusEngineeringPrototype: 'Prototyp inżynierski',
     statusProof: 'Dowód techniczny',
     liveLink: 'Strona na żywo',
     githubLink: 'GitHub',
     caseStudy: 'Studium przypadku',
     previewLabel: 'Podgląd na żywo',
-    screenshotPlaceholder: 'Miejsce na zrzut ekranu',
-    previewPending: 'Szczegóły demo wkrótce',
-    pendingSummary: 'Opis i link do repozytorium uzupełni właściciel.',
     items: {
       n2d: {
         name: 'N2D Nails',

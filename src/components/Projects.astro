@@ -26,31 +26,28 @@ const base = import.meta.env.BASE_URL;
       const item = dict.items[p.id];
       return (
         <article class="card" id={p.anchor}>
-          <div class="card-media">
-            {p.liveFrame === 'n2d' ? (
-              <>
-                <div class="browser-bar" aria-hidden="true"><i></i><i></i><i></i></div>
-                <iframe
-                  src={`${base}assets/n2d/customer.html`}
-                  title={`${item.name}: ${t('projects.previewLabel')}`}
-                  loading="lazy"
-                  tabindex="-1"
-                  style="padding-top:22px; box-sizing:border-box"
-                ></iframe>
-              </>
-            ) : p.image ? (
-              <img src={`${base}${p.image}`} alt={`${item.name}: screenshot`} loading="lazy" width="1280" height="720" />
-            ) : (
-              <div class="card-placeholder">
-                <strong data-i18n="projects.screenshotPlaceholder">{t('projects.screenshotPlaceholder')}</strong>
-                <span data-i18n="projects.previewPending">{t('projects.previewPending')}</span>
-              </div>
-            )}
-          </div>
+          {(p.liveFrame || p.image) && (
+            <div class="card-media">
+              {p.liveFrame === 'n2d' ? (
+                <>
+                  <div class="browser-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+                  <iframe
+                    src={`${base}assets/n2d/customer.html`}
+                    title={`${item.name}: ${t('projects.previewLabel')}`}
+                    loading="lazy"
+                    tabindex="-1"
+                    style="padding-top:22px; box-sizing:border-box"
+                  ></iframe>
+                </>
+              ) : (
+                <img src={`${base}${p.image}`} alt={`${item.name}: screenshot`} loading="lazy" width="1280" height="720" />
+              )}
+            </div>
+          )}
 
           <div class="card-body">
             <div class="card-top">
-              <span class={`status status-${p.status}`} data-i18n={`projects.${statusKey[p.status]}`}>{t(`projects.${statusKey[p.status]}`)}</span>
+              <span class={`status status-${p.status}`} data-i18n={`projects.${(p.statusKey ?? statusKey[p.status])}`}>{t(`projects.${(p.statusKey ?? statusKey[p.status])}`)}</span>
             </div>
             <h3 class="card-name" data-i18n={`projects.items.${p.id}.name`}>{item.name}</h3>
             <p class="card-summary" data-i18n={`projects.items.${p.id}.summary`}>{item.summary}</p>
@@ -110,7 +107,7 @@ const base = import.meta.env.BASE_URL;
             <div class="compact-name" data-i18n={`projects.items.${p.id}.name`}>{item.name}</div>
             <div class="compact-summary" data-i18n={`projects.items.${p.id}.summary`}>{item.summary}</div>
             <div class="tags" style="margin-top:10px">
-              <span class={`status status-${p.status}`} data-i18n={`projects.${statusKey[p.status]}`}>{t(`projects.${statusKey[p.status]}`)}</span>
+              <span class={`status status-${p.status}`} data-i18n={`projects.${(p.statusKey ?? statusKey[p.status])}`}>{t(`projects.${(p.statusKey ?? statusKey[p.status])}`)}</span>
               {p.stack.map((id) => (
                 <span class="tag">{label(id)}</span>
               ))}

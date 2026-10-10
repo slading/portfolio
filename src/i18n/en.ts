@@ -97,14 +97,12 @@ export const en = {
     heading: 'Projects',
     statusProduction: 'Production',
     statusPrototype: 'Prototype',
+    statusEngineeringPrototype: 'Engineering prototype',
     statusProof: 'Technical proof',
     liveLink: 'Live site',
     githubLink: 'GitHub',
     caseStudy: 'Case study',
     previewLabel: 'Live preview',
-    screenshotPlaceholder: 'Screenshot placeholder',
-    previewPending: 'Demo details to come',
-    pendingSummary: 'Description and repository link to be added by the owner.',
     items: {
       n2d: {
         name: 'N2D Nails',

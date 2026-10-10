@@ -16,14 +16,15 @@ export interface Project {
   status: ProjectStatus;
   /** Anchor for the in-page search and links. */
   anchor: string;
-  /** Path under public/ for the card image. Omit for placeholders. */
+  /** Path under public/ for the card image. Omit for a text-only card (no placeholder is shown). */
   image?: string;
+  /** Optional i18n key for the status label, when a project needs more than the generic status. */
+  statusKey?: string;
   /** Renders the N2D demo iframe instead of a static image. */
   liveFrame?: 'n2d';
   links: ProjectLink[];
   /** Tech ids from src/data/stack.ts. */
   stack: string[];
-  /** Pending details: no links are shown until the owner supplies them. */
 }
 
 export const featured: Project[] = [
@@ -41,6 +42,7 @@ export const featured: Project[] = [
   {
     id: 'rfq',
     status: 'prototype',
+    statusKey: 'statusEngineeringPrototype',
     anchor: 'project-rfq',
     links: [],
     stack: [],

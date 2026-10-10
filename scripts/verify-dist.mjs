@@ -295,5 +295,37 @@ if (movies.length > 0) {
   check(!/[Rr]ating|review|★/.test(favHtml), '/favourites: no ratings or review markup');
 }
 
+console.log('Project 04 card (text-first, no placeholders)');
+{
+  // No placeholder or pending wording anywhere in the built output, in any language.
+  const banned = [
+    'Screenshot placeholder', 'Demo details to come', 'Details pending', 'card-placeholder',
+    'Miejsce na zrzut ekranu', 'Szczegóły demo wkrótce', 'Szczegóły w przygotowaniu', 'Opis i link do repozytorium',
+  ];
+  const outFiles = [];
+  const walkOut = (d) => {
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      const f = join(d, e.name);
+      if (e.isDirectory()) walkOut(f);
+      else if (/\.(html|js)$/.test(e.name)) outFiles.push(f);
+    }
+  };
+  walkOut(dist);
+  const hitsBanned = outFiles.filter((f) => banned.some((b) => readFileSync(f, 'utf8').includes(b)));
+  check(hitsBanned.length === 0, `no placeholder or pending wording in dist${hitsBanned.length ? ` (found in ${hitsBanned.map((f) => f.slice(dist.length)).join(', ')})` : ''}`);
+
+  // The project card itself: exact title, status, description; no media, no links, no production claim.
+  const rfqStart = html.indexOf('id="project-rfq"');
+  const rfqEnd = rfqStart >= 0 ? html.indexOf('</article>', rfqStart) : -1;
+  const rfq = rfqStart >= 0 && rfqEnd > rfqStart ? html.slice(rfqStart, rfqEnd) : '';
+  check(rfq.length > 0, 'Project 04 card rendered in the featured section');
+  check(/Project 04 — AI RFQ Operations Agent/.test(rfq), 'Project 04 card: exact title');
+  check(/>Engineering prototype</.test(rfq), 'Project 04 card: status "Engineering prototype"');
+  check(rfq.includes('An engineering prototype for processing incoming requests for quotation (RFQs). Built around structured data extraction, deterministic validation, and human review to make complex quotation workflows more reliable and easier to manage.'), 'Project 04 card: owner description, verbatim');
+  check(!/card-media/.test(rfq) && !/<img|<iframe/.test(rfq), 'Project 04 card: text-only (no image, no iframe)');
+  check(!/https?:\/\//.test(rfq), 'Project 04 card: no repository, live or demo URL invented');
+  check(!/>Production</.test(rfq) && !/status-production/.test(rfq), 'Project 04 card: no production claim');
+}
+
 console.log(`\n${passes} passed, ${failures} failed`);
 process.exit(failures ? 1 : 0);
