@@ -159,7 +159,10 @@ const subpages = [
   { file: 'resume/index.html', path: '/resume/' },
   { file: 'favourites/index.html', path: '/favourites/' },
 ];
-const cvPresent = existsSync(join(root, 'public/cv/yauheni-buka-cv.pdf'));
+// The CV path comes from src/data/cv.ts so the checks follow the single source of truth.
+const cvSource = readFileSync(join(root, 'src/data/cv.ts'), 'utf8');
+const cvRelPath = cvSource.match(/cvFile = '([^']+)'/)[1];
+const cvPresent = existsSync(join(root, 'public', cvRelPath));
 // Count movie entries in src/data/favourites.ts (entries are the lines with a string title).
 const movies = [...readFileSync(join(root, 'src/data/favourites.ts'), 'utf8').matchAll(/^\s+title: '/gm)];
 for (const page of subpages) {
@@ -189,7 +192,10 @@ for (const page of subpages) {
 }
 const resumeHtml = readFileSync(join(dist, 'resume/index.html'), 'utf8');
 if (cvPresent) {
-  check(/<iframe src="\/cv\/yauheni-buka-cv\.pdf/.test(resumeHtml), '/resume: CV viewer rendered (CV file present)');
+  check(resumeHtml.includes(`<iframe src="/${cvRelPath}#view=FitH"`), '/resume: CV viewer rendered with the committed CV');
+  check(resumeHtml.includes(`href="/${cvRelPath}" download="Yauheni_Buka_CV.pdf"`), '/resume: Download button points at the CV with a stable filename');
+  check(resumeHtml.includes(`href="/${cvRelPath}" target="_blank"`), '/resume: Open PDF button points at the CV');
+  check(!resumeHtml.includes('aria-disabled="true"'), '/resume: Open PDF and Download are enabled (no disabled markup)');
 } else {
   check(!/<iframe/.test(resumeHtml), '/resume: no viewer without the CV file (no substitute document)');
   check(/CV not published yet/.test(resumeHtml), '/resume: "not published yet" state shown');

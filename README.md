@@ -80,7 +80,7 @@ To enable it:
 
 More menu → **Resume** (`/resume/`) and **Favourite Movies** (`/favourites/`). Both are also in command search (Ctrl+K / ⌘K).
 
-- **Resume:** the page shows the owner's CV only when `public/cv/yauheni-buka-cv.pdf` exists at build time. Without it, the page shows a "CV not published yet" state. Never put another person's CV at this path.
+- **Resume:** the page shows the owner's CV only when `public/cv/Yauheni_Buka_CV.pdf` (the path is set in `src/data/cv.ts`) exists at build time. Without it, the page shows a "CV not published yet" state. Never put another person's CV at this path.
 - **Favourite Movies:** the list lives in `src/data/favourites.ts` (`movies`, empty by default). Add titles there. Poster images go in `public/favourites/` and are optional; without one, the card shows the title as text.
 
 ## Notes

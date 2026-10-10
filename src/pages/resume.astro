@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { t } from '../i18n';
-import { cvFile } from '../data/cv';
+import { cvFile, cvDownloadName } from '../data/cv';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -28,7 +28,7 @@ const hasCv = existsSync(join(process.cwd(), 'public', cvFile));
           <span class="btn" aria-disabled="true" data-i18n="pages.resume.openPdf">{t('pages.resume.openPdf')}</span>
         )}
         {hasCv ? (
-          <a class="btn btn-primary" href={pdfHref} download data-i18n="pages.resume.download">{t('pages.resume.download')}</a>
+          <a class="btn btn-primary" href={pdfHref} download={cvDownloadName} data-i18n="pages.resume.download">{t('pages.resume.download')}</a>
         ) : (
           <span class="btn btn-primary" aria-disabled="true" data-i18n="pages.resume.download">{t('pages.resume.download')}</span>
         )}
