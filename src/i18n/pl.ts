@@ -57,17 +57,10 @@ export const pl: Messages = {
   },
 
   music: {
-    kicker: 'Muzyka',
-    coverAlt: 'Okładka utworu',
-    play: 'Odtwórz',
-    pause: 'Pauza',
+    kicker: 'Moja rotacja',
     prev: 'Poprzedni utwór',
     next: 'Następny utwór',
-    loading: 'Wczytywanie odtwarzacza Spotify…',
-    nowPlaying: 'Odtwarzanie',
-    blocked: 'Odtwarzacz Spotify nie mógł się tutaj wczytać. Użyj linku „Otwórz w Spotify”.',
     openSpotify: 'Otwórz w Spotify',
-    note: 'Odtwarzanie odbywa się w osadzonym odtwarzaczu Spotify. Czy utwór gra w całości, zależy od konta Spotify i regionu.',
   },
 
   tech: {

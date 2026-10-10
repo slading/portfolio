@@ -59,17 +59,10 @@ export const en = {
   },
 
   music: {
-    kicker: 'Music',
-    coverAlt: 'Track artwork',
-    play: 'Play',
-    pause: 'Pause',
+    kicker: 'My Rotation',
     prev: 'Previous track',
     next: 'Next track',
-    loading: 'Loading Spotify player…',
-    nowPlaying: 'Playing',
-    blocked: 'The Spotify player could not load here. Use “Open in Spotify” instead.',
     openSpotify: 'Open in Spotify',
-    note: 'Playback runs in Spotify’s embedded player. Whether a track plays in full depends on your Spotify account and region.',
   },
 
   tech: {

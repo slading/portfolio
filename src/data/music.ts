@@ -1,12 +1,9 @@
 /**
- * Music player: the owner's six Spotify tracks, in the owner's order.
+ * "My Rotation": the owner's six Spotify tracks, in the owner's order.
  *
- * Metadata was taken from Spotify's public embed page for each track
- * (open.spotify.com/embed/track/<id>), and each title was cross-checked against Spotify's
- * oEmbed title. Artwork is Spotify's own cover URL, shown the same way the official embed shows it.
- *
- * Playback uses Spotify's official embed (iFrame API). Nothing here hosts or downloads audio,
- * and no Spotify account login is needed. Re-verify metadata if a track is changed or removed.
+ * Title, artist and artwork were checked against Spotify's public pages (oEmbed and the embed page).
+ * Artwork is Spotify's own cover URL. The site hosts no audio and plays nothing: every track
+ * links out to Spotify. Re-verify metadata if a track is changed or removed.
  */
 export interface Track {
   /** Spotify track ID (the part after /track/ in the share link). */
@@ -56,8 +53,5 @@ export const tracks: Track[] = [
   },
 ];
 
-/** Canonical Spotify link for a track (also used for "Open in Spotify"). */
+/** Canonical Spotify link for a track. */
 export const trackUrl = (spotifyId: string) => `https://open.spotify.com/track/${spotifyId}`;
-
-/** Compact official embed height in pixels (Spotify's compact track player). */
-export const embedHeight = 80;

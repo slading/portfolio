@@ -68,15 +68,13 @@ If the fetch fails, the script exits with an error and leaves the existing file 
 - Default language is **English**. Visitors can switch to Polish with the EN/PL control in the footer. The choice is stored in `localStorage` (`portfolio-language`).
 - Theme follows the system preference until the visitor toggles it. The choice is stored as `portfolio-theme`.
 
-## Music player
+## My Rotation (Hero music showcase)
 
-The Hero player uses Spotify's **official embed** for playback. The site hosts and downloads no audio, and has no custom streaming or Spotify login.
+The Hero card shows six Spotify tracks, in the owner's order, with artwork, title and artist. It is a showcase only. It plays nothing inside the site: there is no embed, no iFrame API, no audio file, no progress bar and no Play button. Every title, artwork and "Open in Spotify" link opens the track on Spotify.
 
 - **Tracks:** six Spotify track IDs in `src/data/music.ts`, in the owner's order. Title, artist and artwork were checked against Spotify's public pages (oEmbed and the embed page). Do not invent metadata. Track 5's title is literal Spotify text and is kept as is.
-- **Loading:** nothing loads on page view. Pressing play loads Spotify's iFrame API script and creates the embed. There is no autoplay.
-- **States:** the equalizer and progress show only from Spotify's `playback_update` events. If the embed does not report ready within 10 s, the card shows a message and keeps the "Open in Spotify" link. Equalizer animation stops under reduced motion.
-- **Limits:** Spotify decides whether a visitor hears a full track (account, region, and availability). The page does not promise full-track playback.
-- **Checks:** `scripts/verify-dist.mjs` confirms the six IDs and their order, the metadata, the Spotify-only artwork hosts, and that no `<audio>`, autoplay, or Spotify iframe is in the static HTML.
+- **Navigation:** previous and next cycle through the six tracks and wrap around. The buttons appear only once the script runs, so the card never shows a control that does nothing. Without JavaScript the first track shows.
+- **Checks:** `scripts/verify-dist.mjs` confirms the six IDs and their order, the verified titles and artists, the six Spotify links, the Spotify-only artwork hosts, and that no embed, iFrame API, audio, autoplay or playback control is in the output.
 
 ## Subpages
 
