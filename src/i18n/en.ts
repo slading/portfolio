@@ -216,8 +216,9 @@ export const en = {
     },
     favourites: {
       title: 'Favourites',
-      intro: 'Films I keep coming back to. The list is added title by title.',
-      moviesKicker: 'Movies',
+      intro: 'Stories that stay with me. Psychological thrillers, morally complicated characters, impossible choices, and the occasional obsession with ambition. Also, yes — I really like Jake Gyllenhaal.',
+      moviesKicker: 'Films and series',
+      tvSeries: 'TV series',
       emptyTitle: 'No films listed yet',
       emptyText: 'The list will appear here once it is added.',
     },

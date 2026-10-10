@@ -214,8 +214,9 @@ export const pl: Messages = {
     },
     favourites: {
       title: 'Ulubione',
-      intro: 'Filmy, do których wracam. Lista będzie uzupełniana tytuł po tytule.',
-      moviesKicker: 'Filmy',
+      intro: 'Historie, które zostają ze mną. Thrillery psychologiczne, moralnie skomplikowane postaci, niemożliwe wybory i od czasu do czasu obsesja na punkcie ambicji. A tak, naprawdę lubię Jake’a Gyllenhaala.',
+      moviesKicker: 'Filmy i seriale',
+      tvSeries: 'serial TV',
       emptyTitle: 'Nie dodano jeszcze filmów',
       emptyText: 'Lista pojawi się tutaj po jej dodaniu.',
     },

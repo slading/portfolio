@@ -178,7 +178,6 @@ const cvSource = readFileSync(join(root, 'src/data/cv.ts'), 'utf8');
 const cvRelPath = cvSource.match(/cvFile = '([^']+)'/)[1];
 const cvPresent = existsSync(join(root, 'public', cvRelPath));
 // Count movie entries in src/data/favourites.ts (entries are the lines with a string title).
-const movies = [...readFileSync(join(root, 'src/data/favourites.ts'), 'utf8').matchAll(/^\s+title: '/gm)];
 for (const page of subpages) {
   const p = join(dist, page.file);
   if (!existsSync(p)) {
@@ -214,10 +213,24 @@ if (cvPresent) {
   check(!/<iframe/.test(resumeHtml), '/resume: no viewer without the CV file (no substitute document)');
   check(/CV not published yet/.test(resumeHtml), '/resume: "not published yet" state shown');
 }
+const favSource = readFileSync(join(root, 'src/data/favourites.ts'), 'utf8');
+const movies = [...favSource.matchAll(/^\s+\{ title: (["'])(.+?)\1, year: (\d{4})/gm)].map((m) => ({ title: m[2], year: m[3] }));
 const favHtml = readFileSync(join(dist, 'favourites/index.html'), 'utf8');
 const favCount = (favHtml.match(/class="poster-card"/g) || []).length;
 check(favCount === movies.length, `/favourites: poster count matches src/data/favourites.ts (${favCount}/${movies.length})`);
 if (movies.length === 0) check(/No films listed yet/.test(favHtml), '/favourites: empty state shown');
+if (movies.length > 0) {
+  const decode = (s) => s.replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"');
+  const shownTitles = [...favHtml.matchAll(/class="poster-title">([^<]+)</g)].map((m) => decode(m[1]));
+  const shownYears = [...favHtml.matchAll(/class="poster-meta"><span>(\d{4})<\/span>/g)].map((m) => m[1]);
+  check(JSON.stringify(shownTitles) === JSON.stringify(movies.map((m) => m.title)), '/favourites: titles appear in the owner\'s exact order');
+  check(JSON.stringify(shownYears) === JSON.stringify(movies.map((m) => m.year)), '/favourites: years match the data');
+  const seriesCount = (favHtml.match(/data-i18n="pages\.favourites\.tvSeries"/g) || []).length;
+  check(seriesCount === 1 && /Alice in Borderland/.test(favHtml), '/favourites: Alice in Borderland labelled as a TV series (exactly one label)');
+  const posterSrcs = [...favHtml.matchAll(/<img[^>]+src="\/?([^"]*favourites\/[^"]+)"/g)].map((m) => m[1]);
+  check(posterSrcs.every((src) => existsSync(join(dist, src))), '/favourites: every poster image in the markup exists in the build');
+  check(!/[Rr]ating|review|★/.test(favHtml), '/favourites: no ratings or review markup');
+}
 
 console.log(`\n${passes} passed, ${failures} failed`);
 process.exit(failures ? 1 : 0);
