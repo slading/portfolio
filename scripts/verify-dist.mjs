@@ -321,7 +321,7 @@ console.log('Project 04 card (text-first, no placeholders)');
   check(rfq.length > 0, 'Project 04 card rendered in the featured section');
   check(/Project 04 — AI RFQ Operations Agent/.test(rfq), 'Project 04 card: exact title');
   check(/>Engineering prototype</.test(rfq), 'Project 04 card: status "Engineering prototype"');
-  check(rfq.includes('An engineering prototype for processing incoming requests for quotation (RFQs). Built around structured data extraction, deterministic validation, and human review to make complex quotation workflows more reliable and easier to manage.'), 'Project 04 card: owner description, verbatim');
+  check(rfq.includes('An engineering prototype for processing incoming requests for quotation (RFQs). Focused on deterministic validation, structured workflows, and human review, with AI-assisted extraction planned for future development.'), 'Project 04 card: owner description, verbatim');
   check(!/card-media/.test(rfq) && !/<img|<iframe/.test(rfq), 'Project 04 card: text-only (no image, no iframe)');
   check(!/https?:\/\//.test(rfq), 'Project 04 card: no repository, live or demo URL invented');
   check(!/>Production</.test(rfq) && !/status-production/.test(rfq), 'Project 04 card: no production claim');
