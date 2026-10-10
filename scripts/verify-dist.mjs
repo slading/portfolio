@@ -153,6 +153,20 @@ const retired = ['assets/mascot', 'assets-unpublished'];
 for (const r of retired) {
   check(!existsSync(join(dist, r)), `retired path not published: ${r}`);
 }
+// Discontinued project: must not appear in any published HTML.
+{
+  const htmlFiles = [];
+  const walk = (d) => {
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      const f = join(d, e.name);
+      if (e.isDirectory()) walk(f);
+      else if (e.name.endsWith('.html')) htmlFiles.push(f);
+    }
+  };
+  walk(dist);
+  const hits = htmlFiles.filter((f) => /voice[\s_-]?order/i.test(readFileSync(f, 'utf8')));
+  check(hits.length === 0, `discontinued project (Voice Order) absent from published HTML${hits.length ? ` (found in: ${hits.join(', ')})` : ''}`);
+}
 
 console.log('Subpages');
 const subpages = [
