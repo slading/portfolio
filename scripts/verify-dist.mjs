@@ -9,7 +9,7 @@
  *  - no third-party font/CDN/analytics hosts
  *  - no "undefined", "[object Object]" or "NaN" in markup
  *  - every data-i18n key resolves in BOTH en and pl dictionaries
- *  - music: no tracks => controls disabled; no reference to the never-committed mp3
+ *  - music: six Spotify tracks in the owner's order; embed and audio are not in static HTML
  *  - GitHub grid renders one cell per day in src/data/github-contributions.json
  *  - retired Phase 1 assets are not in dist/
  */
@@ -93,8 +93,9 @@ check(missing.length === 0, `all ${local.length} local references resolve${missi
 
 const thirdParty = [...html.matchAll(/https?:\/\/([^/"' )]+)/g)]
   .map((m) => m[1])
-  .filter((h) => !/^(exotision\.fun|github\.com|nail-booking-pi\.vercel\.app|sentinel-ai-ten-nu\.vercel\.app|www\.w3\.org)$/.test(h));
-// Allowed: the owner's own site, GitHub, and the two live project links listed in projects.ts.
+  .filter((h) => !/^(exotision\.fun|github\.com|nail-booking-pi\.vercel\.app|sentinel-ai-ten-nu\.vercel\.app|www\.w3\.org|open\.spotify\.com|image-cdn-(ak|fa)\.spotifycdn\.com)$/.test(h));
+// Allowed: the owner's own site, GitHub, the two live project links in projects.ts, and Spotify
+// (track links and cover artwork for the music player; playback itself is Spotify's official embed).
 check(thirdParty.length === 0, `no unexpected hosts in markup${thirdParty.length ? ': ' + thirdParty.join(', ') : ''}`);
 
 const cssFiles = readdirSync(join(dist, '_astro')).filter((f) => f.endsWith('.css'));
@@ -120,23 +121,36 @@ for (const key of keys) {
 }
 if (keyFail === 0) pass(`all ${keys.size} data-i18n keys resolve in EN and PL`);
 
-console.log('Music player');
+console.log('Music player (Spotify embed)');
+// The owner's six tracks, in the owner's order. Hard-coded on purpose, so the data file is checked against it.
+const expectedSpotifyIds = [
+  '4vP2Y2WVTCKeQjyJUmIfwl',
+  '3ctwglyi5wn9Okd1h1ZkPT',
+  '6DSR0HsTfpDlkJm7vEmLIr',
+  '3I32SxStmqEZORu2Q4phUO',
+  '0HEb8h395qcvn2KGZy3KFn',
+  '3Ksyal4c4OD5g69t52Sc4e',
+];
+const musicSource = readFileSync(join(root, 'src/data/music.ts'), 'utf8');
+const sourceIds = [...musicSource.matchAll(/spotifyId: '([^']+)'/g)].map((m) => m[1]);
+check(JSON.stringify(sourceIds) === JSON.stringify(expectedSpotifyIds), "music data: six Spotify track IDs in the owner's exact order");
 const musicMatch = html.match(/<div class="music"[^>]*data-tracks="([^"]*)"/);
-const tracksJson = musicMatch ? musicMatch[1].replace(/&quot;/g, '"') : '[]';
-const tracks = JSON.parse(tracksJson || '[]');
 check(!!musicMatch, 'music player rendered');
-if (tracks.length === 0) {
-  check(/data-music-play[^>]*disabled/.test(html), 'no tracks => play control disabled');
-  check(/data-music-seek[^>]*disabled/.test(html), 'no tracks => seek control disabled');
-} else {
-  check(!/data-music-play[^>]*disabled/.test(html), 'tracks configured => play control enabled');
-  for (const t of tracks) {
-    const p = join(dist, decodeURIComponent(t.src));
-    check(existsSync(p), `audio source exists: ${t.src}`);
-  }
+const tracks = musicMatch ? JSON.parse(musicMatch[1].replace(/&quot;/g, '"')) : [];
+check(JSON.stringify(tracks.map((t) => t.spotifyId)) === JSON.stringify(expectedSpotifyIds), "music player: track order in the page matches the owner's list");
+check(tracks.length === 6 && tracks.every((t) => t.title && t.title.trim() && t.artist && t.artist.trim()), 'music player: every track has a verified title and artist');
+check(tracks.every((t) => t.artwork === null || /^https:\/\/image-cdn-(ak|fa)\.spotifycdn\.com\//.test(t.artwork)), 'music player: artwork is Spotify CDN only (or absent)');
+for (const id of expectedSpotifyIds) {
+  check(musicMatch[1].includes(id), `track present in player data: ${id}`);
 }
-check(!/audio\/music\.mp3/.test(html), 'no reference to the never-committed /audio/music.mp3');
-check(!/autoplay/.test(html), 'no autoplay attribute');
+check(/data-music-open[^>]*href="https:\/\/open\.spotify\.com\/track\/[^"]+"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/.test(html), 'Open in Spotify link present (new tab, rel=noopener)');
+check(/<div class="music-embed"[^>]*data-music-embed[^>]*hidden/.test(html), 'embed container hidden until the visitor presses play');
+check(!/<iframe[^>]*open\.spotify\.com/i.test(html), 'no Spotify iframe in static HTML (the embed loads on interaction)');
+check(!/iframe-api/.test(html), 'Spotify iFrame API script not in static HTML (loads on interaction)');
+check(!/<audio[\s>]/i.test(html), 'no <audio> element (nothing hosted or downloaded)');
+check(!/autoplay/i.test(html), 'no autoplay attribute');
+check(/data-music-eq/.test(html), 'equalizer markup present (shown only while playing)');
+check(/class="music-note"/.test(html), 'playback limitation note present');
 
 console.log('GitHub activity');
 const gh = JSON.parse(readFileSync(join(root, 'src/data/github-contributions.json'), 'utf8'));

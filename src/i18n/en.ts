@@ -60,18 +60,16 @@ export const en = {
 
   music: {
     kicker: 'Music',
-    noTrackTitle: 'No track added yet',
-    noTrackArtist: 'Tracks will appear here.',
-    coverAlt: 'Album artwork',
+    coverAlt: 'Track artwork',
     play: 'Play',
     pause: 'Pause',
     prev: 'Previous track',
     next: 'Next track',
-    seek: 'Seek',
-    loading: 'Loading…',
-    error: 'This track could not be played.',
-    nowPlaying: 'Now playing',
-    trackCount: 'tracks',
+    loading: 'Loading Spotify player…',
+    nowPlaying: 'Playing',
+    blocked: 'The Spotify player could not load here. Use “Open in Spotify” instead.',
+    openSpotify: 'Open in Spotify',
+    note: 'Playback runs in Spotify’s embedded player. Whether a track plays in full depends on your Spotify account and region.',
   },
 
   tech: {

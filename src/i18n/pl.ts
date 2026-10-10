@@ -58,18 +58,16 @@ export const pl: Messages = {
 
   music: {
     kicker: 'Muzyka',
-    noTrackTitle: 'Nie dodano jeszcze utworu',
-    noTrackArtist: 'Utwory pojawią się tutaj.',
-    coverAlt: 'Okładka albumu',
+    coverAlt: 'Okładka utworu',
     play: 'Odtwórz',
     pause: 'Pauza',
     prev: 'Poprzedni utwór',
     next: 'Następny utwór',
-    seek: 'Przewiń',
-    loading: 'Wczytywanie…',
-    error: 'Nie udało się odtworzyć tego utworu.',
-    nowPlaying: 'Teraz gra',
-    trackCount: 'utworów',
+    loading: 'Wczytywanie odtwarzacza Spotify…',
+    nowPlaying: 'Odtwarzanie',
+    blocked: 'Odtwarzacz Spotify nie mógł się tutaj wczytać. Użyj linku „Otwórz w Spotify”.',
+    openSpotify: 'Otwórz w Spotify',
+    note: 'Odtwarzanie odbywa się w osadzonym odtwarzaczu Spotify. Czy utwór gra w całości, zależy od konta Spotify i regionu.',
   },
 
   tech: {

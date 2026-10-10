@@ -30,7 +30,7 @@ npm run verify       # check + build + dist checks
 src/
   i18n/          en.ts (default), pl.ts (typed to match en), index.ts (lookup, storage keys)
   data/          projects.ts (featured/additional projects, links, email), stack.ts (tech tiles),
-                 music.ts (tracks; ships empty), github-contributions.json (generated snapshot)
+                 music.ts (six Spotify tracks, in order, with verified metadata), github-contributions.json (generated snapshot)
   layouts/       Base.astro (head, theme-before-paint script, column, search dialog)
   components/    Nav, Hero, MusicPlayer, TechStack, Approach, Projects, GitHubActivity,
                  Footer, SearchDialog
@@ -70,11 +70,13 @@ If the fetch fails, the script exits with an error and leaves the existing file 
 
 ## Music player
 
-The player uses a real `<audio>` element and **ships with no tracks**. Nothing autoplays, and audio is not loaded until the visitor presses play. Only add audio you have the rights to use.
+The Hero player uses Spotify's **official embed** for playback. The site hosts and downloads no audio, and has no custom streaming or Spotify login.
 
-To enable it:
-1. Put the audio file under `public/audio/` (and optional cover art under `public/audio/covers/`).
-2. Add an entry to `tracks` in `src/data/music.ts`, e.g. `{ id: 'main', title: 'Track title', artist: 'Artist', src: '/audio/main.mp3' }`.
+- **Tracks:** six Spotify track IDs in `src/data/music.ts`, in the owner's order. Title, artist and artwork were checked against Spotify's public pages (oEmbed and the embed page). Do not invent metadata. Track 5's title is literal Spotify text and is kept as is.
+- **Loading:** nothing loads on page view. Pressing play loads Spotify's iFrame API script and creates the embed. There is no autoplay.
+- **States:** the equalizer and progress show only from Spotify's `playback_update` events. If the embed does not report ready within 10 s, the card shows a message and keeps the "Open in Spotify" link. Equalizer animation stops under reduced motion.
+- **Limits:** Spotify decides whether a visitor hears a full track (account, region, and availability). The page does not promise full-track playback.
+- **Checks:** `scripts/verify-dist.mjs` confirms the six IDs and their order, the metadata, the Spotify-only artwork hosts, and that no `<audio>`, autoplay, or Spotify iframe is in the static HTML.
 
 ## Subpages
 
