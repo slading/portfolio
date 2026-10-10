@@ -70,23 +70,21 @@ If the fetch fails, the script exits with an error and leaves the existing file 
 
 ## My Rotation (Hero music player)
 
-The Hero card shows one track: **Lolibox by Sewerslvt**. Title and artist are exact, and the Spotify track ID is in `src/data/music.ts`.
+The Hero shows one track, **Lolibox by Sewerslvt**, in a full-width card the width of the content column. Title and artist are exact, and the Spotify track ID is in `src/data/music.ts`.
 
 The card has two states, decided at build time:
 
-- **Audio file present** (`public/music/track.mp3`): a compact native HTML5 player with play/pause, a seek bar and a time readout. An equalizer shows only while the audio element reports playback. The file loads only when the visitor presses play (`preload="none"`), and nothing autoplays.
-- **Audio file absent:** the card shows the artwork, title, artist and an "Open in Spotify" link, with no controls. A player that cannot play is never shown.
+- **Audio file present** (`public/music/track.mp3`): a native HTML5 player with a large play/pause button, a long seek bar and a time readout showing the real elapsed and total duration. An equalizer shows only while the audio element reports playback. The file loads only when the visitor presses play (`preload="none"`), and nothing autoplays.
+- **Audio file missing:** the same layout appears with the play button and seek bar disabled and the note "Audio file not published yet." The player is never silently replaced by a link. "Open in Spotify" stays available as a secondary action.
 
 The site never uses Spotify's embed, its iFrame API, or a 30-second preview.
 
 **Artwork:** if `public/music/cover.jpg` exists it is used. Otherwise Spotify's own cover image for the track is shown. If that image cannot load, a neutral icon is shown instead.
 
 **Adding the audio:**
-1. Place the file at `public/music/track.mp3` (MP3, the owner's own recording or one licensed for this use).
+1. Place the file at `public/music/track.mp3` (MP3: the owner's own recording, or one licensed for this use).
 2. Optionally place a square cover at `public/music/cover.jpg`.
-3. Rebuild. `scripts/verify-dist.mjs` checks that the file is an MP3, that it is copied to `dist/`, and that the player markup is present.
-
-Without the file, the card still works as a showcase with the Spotify link.
+3. Rebuild. `scripts/verify-dist.mjs` checks the file is an MP3, that it is copied to `dist/`, and that the player is enabled.
 
 ## Subpages
 

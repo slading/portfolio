@@ -159,6 +159,7 @@ if (audioPresent) {
   check(!/<audio\b[^>]*autoplay/i.test(musicHtml), 'audio: no autoplay');
   check(/<audio\b[^>]*src="[^"]*music\/track\.mp3"/.test(musicHtml), 'audio: src points to music/track.mp3');
   check(/data-music-play/.test(musicHtml) && /data-music-seek/.test(musicHtml), 'audio: play/pause and seek controls present');
+  check(!/data-music-play[^>]*\sdisabled/.test(musicHtml), 'audio: play button enabled (the seek bar starts disabled and is enabled once metadata loads)');
   const distAudio = join(dist, 'music/track.mp3');
   check(existsSync(distAudio), 'audio: music/track.mp3 copied into dist');
   if (existsSync(distAudio)) {
@@ -169,10 +170,16 @@ if (audioPresent) {
   }
 } else {
   check(!/<audio[\s>]/i.test(html), 'no audio file: no <audio> element');
-  check(!/data-music-play|data-music-seek/.test(html), 'no audio file: no play or seek control (nothing to play)');
-  check(/rotation-open/.test(musicHtml), 'no audio file: Spotify link still available');
+  check(/data-music-play[^>]*\sdisabled/.test(musicHtml) && /data-music-seek[^>]*\sdisabled/.test(musicHtml), 'no audio file: play and seek are disabled (not live)');
+  check(/class="music-status is-missing"[^>]*>Audio file not published yet\./.test(musicHtml), 'no audio file: explicit "not published yet" note shown');
+  check(/rotation-open/.test(musicHtml), 'no audio file: Spotify link still available as a secondary action');
 }
 
+// Full-width player: no width cap inherited from the old compact card.
+const cssDir = join(dist, '_astro');
+const rotationCss = readdirSync(cssDir).filter((f) => f.endsWith('.css')).map((f) => readFileSync(join(cssDir, f), 'utf8')).join('\n');
+check(!/\.rotation\{[^}]*max-width:\s*(380|420)px/.test(rotationCss), 'music player: no 380px/420px width cap');
+check(/\.rotation\{[^}]*width:100%/.test(rotationCss), 'music player: full width of the content column');
 const jsDir = join(dist, '_astro');
 const jsBundles = readdirSync(jsDir).filter((f) => f.endsWith('.js'));
 const jsText = jsBundles.map((f) => readFileSync(join(jsDir, f), 'utf8')).join('\n');

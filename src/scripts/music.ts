@@ -40,8 +40,12 @@ export function initMusic(root: HTMLElement) {
 
   function render() {
     const current = audio!.currentTime || 0;
-    time!.textContent = `${fmt(current)} / ${fmt(audio!.duration)}`;
+    const total = audio!.duration;
+    time!.textContent = `${fmt(current)} / ${fmt(total)}`;
     if (document.activeElement !== seek) seek!.value = String(current);
+    // Fill the played part of the custom track (CSS reads --pct).
+    const pct = Number.isFinite(total) && total > 0 ? Math.min(100, (current / total) * 100) : 0;
+    seek!.style.setProperty('--pct', `${pct}%`);
   }
 
   function showError() {

@@ -62,6 +62,7 @@ export const pl: Messages = {
     pause: 'Pauza',
     seek: 'Przewiń',
     error: 'Nie udało się odtworzyć nagrania. Użyj linku „Otwórz w Spotify”.',
+    missing: 'Plik audio nie jest jeszcze opublikowany.',
     openSpotify: 'Otwórz w Spotify',
   },
 

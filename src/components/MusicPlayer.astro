@@ -4,8 +4,9 @@ import { join } from 'node:path';
 import { t } from '../i18n';
 import { track, trackUrl, audioFile, coverFile } from '../data/music';
 
-// Both files are checked at build time. The player only appears when the audio file exists,
-// so the site never shows a play button that cannot play.
+// The audio file and the optional cover are checked at build time.
+// When the audio file is missing, the full player layout still shows, with its controls disabled
+// and an explicit note. The page never silently swaps the player for a Spotify link.
 const base = import.meta.env.BASE_URL;
 const hasAudio = existsSync(join(process.cwd(), 'public', audioFile));
 const hasCover = existsSync(join(process.cwd(), 'public', coverFile));
@@ -14,30 +15,26 @@ const openUrl = trackUrl(track.spotifyId);
 ---
 
 <section id="music" class="rotation-wrap" aria-labelledby="music-kicker">
-  <div class="rotation" data-music data-state="idle">
+  <div class="rotation" data-music data-state="idle" data-audio={hasAudio ? 'yes' : 'no'}>
     <div class="rotation-head">
       <span class="rotation-label" id="music-kicker" data-i18n="music.kicker">{t('music.kicker')}</span>
-      {
-        hasAudio && (
-          <span class="eq" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
-        )
-      }
+      <span class="eq" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </span>
     </div>
 
-    <div class="rotation-slide">
+    <div class="rotation-top">
       <div class="rotation-art">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
         {
           artwork && (
             <img
               src={artwork}
               alt=""
-              width="56"
-              height="56"
+              width="112"
+              height="112"
               loading="lazy"
               decoding="async"
               referrerpolicy="no-referrer"
@@ -50,40 +47,38 @@ const openUrl = trackUrl(track.spotifyId);
       <div class="rotation-text">
         <a class="rotation-title" href={openUrl} target="_blank" rel="noopener noreferrer" title={track.title}>{track.title}</a>
         <span class="rotation-artist">{track.artist}</span>
-
-        {
-          hasAudio && (
-            <div class="player" data-music-player>
-              <button type="button" class="play-btn" data-music-play aria-label={t('music.play')}>
-                <svg class="ic-play" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" /></svg>
-                <svg class="ic-pause" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
-              </button>
-              <input
-                type="range"
-                class="music-seek"
-                data-music-seek
-                min="0"
-                max="0"
-                step="0.1"
-                value="0"
-                disabled
-                aria-label={t('music.seek')}
-              />
-              <span class="music-time" data-music-time>0:00 / --:--</span>
-            </div>
-          )
-        }
-
         <a class="rotation-open" href={openUrl} target="_blank" rel="noopener noreferrer" data-i18n="music.openSpotify">{t('music.openSpotify')}</a>
       </div>
     </div>
 
+    <div class="player" data-music-player>
+      <button type="button" class="play-btn" data-music-play aria-label={t('music.play')} disabled={!hasAudio}>
+        <svg class="ic-play" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" /></svg>
+        <svg class="ic-pause" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
+      </button>
+      <input
+        type="range"
+        class="music-seek"
+        data-music-seek
+        min="0"
+        max="0"
+        step="0.1"
+        value="0"
+        disabled
+        aria-label={t('music.seek')}
+        data-i18n-aria="music.seek"
+      />
+      <span class="music-time" data-music-time>0:00 / --:--</span>
+    </div>
+
     {
-      hasAudio && (
+      hasAudio ? (
         <>
           <audio data-music-audio preload="none" src={`${base}${audioFile}`} />
           <p class="music-status" data-music-status role="status" hidden />
         </>
+      ) : (
+        <p class="music-status is-missing" data-i18n="music.missing">{t('music.missing')}</p>
       )
     }
   </div>

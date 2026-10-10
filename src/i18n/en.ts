@@ -64,6 +64,7 @@ export const en = {
     pause: 'Pause',
     seek: 'Seek',
     error: 'The audio could not be played here. Use “Open in Spotify” instead.',
+    missing: 'Audio file not published yet.',
     openSpotify: 'Open in Spotify',
   },
 
