@@ -6,6 +6,8 @@
  *   shows a poster when that file exists at build time. Otherwise a neutral placeholder is shown,
  *   so nothing is ever a broken image. Only add posters the owner has the right to publish; do not
  *   use AI-generated substitutes or posters from unofficial sources.
+ * - `fit: 'contain'` shows the whole poster with a bar matching its edge colour. Use it only for
+ *   artwork whose proportions differ from the 2:3 frame (cropping would cut its title).
  * - No ratings, reviews or descriptions belong in this file.
  */
 export interface Movie {
@@ -13,12 +15,13 @@ export interface Movie {
   year: number;
   kind?: 'film' | 'series';
   poster?: string;
+  fit?: 'cover' | 'contain';
 }
 
 export const movies: Movie[] = [
   { title: "Guy Ritchie's The Covenant", year: 2023, poster: 'favourites/the-covenant-2023.jpg' },
   { title: 'Prisoners', year: 2013, poster: 'favourites/prisoners-2013.jpg' },
-  { title: 'Donnie Darko', year: 2001, poster: 'favourites/donnie-darko-2001.jpg' },
+  { title: 'Donnie Darko', year: 2001, poster: 'favourites/donnie-darko-2001.jpg', fit: 'contain' },
   { title: 'End of Watch', year: 2012, poster: 'favourites/end-of-watch-2012.jpg' },
   { title: 'Nightcrawler', year: 2014, poster: 'favourites/nightcrawler-2014.jpg' },
   { title: 'Alice in Borderland', year: 2020, kind: 'series', poster: 'favourites/alice-in-borderland-2020.jpg' },

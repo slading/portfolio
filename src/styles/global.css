@@ -1448,6 +1448,13 @@ p {
   display: block;
   transition: transform 0.4s ease;
 }
+/* Letterboxed poster (fit: 'contain'): bar colour matches the artwork's near-black edges. */
+.poster-frame.is-contain {
+  background-color: #000105;
+}
+.poster-frame img.is-contain {
+  object-fit: contain;
+}
 .poster-placeholder {
   position: absolute;
   inset: 0;

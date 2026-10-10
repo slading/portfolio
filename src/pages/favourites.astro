@@ -30,9 +30,15 @@ const hasPoster = (poster?: string) => Boolean(poster) && existsSync(join(proces
         {movies.map((m) => (
           <li>
             <figure class="poster-card">
-              <div class="poster-frame">
+              <div class:list={['poster-frame', m.fit === 'contain' && 'is-contain']}>
                 {hasPoster(m.poster) ? (
-                  <img src={`${base}${m.poster}`} alt={`${m.title} (${m.year})`} loading="lazy" decoding="async" />
+                  <img
+                    class:list={[m.fit === 'contain' && 'is-contain']}
+                    src={`${base}${m.poster}`}
+                    alt={`${m.title} (${m.year})`}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 ) : (
                   <div class="poster-placeholder" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">

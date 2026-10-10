@@ -81,7 +81,7 @@ To enable it:
 More menu → **Resume** (`/resume/`) and **Favourite Movies** (`/favourites/`). Both are also in command search (Ctrl+K / ⌘K).
 
 - **Resume:** the page shows the owner's CV only when `public/cv/Yauheni_Buka_CV.pdf` (the path is set in `src/data/cv.ts`) exists at build time. Without it, the page shows a "CV not published yet" state. Never put another person's CV at this path.
-- **Favourite Movies:** the list lives in `src/data/favourites.ts` (`movies`, in the owner's order). A card shows its poster only when that file exists under `public/` at build time; otherwise it shows a neutral placeholder. Posters must be authorised official artwork (no AI substitutes, no unofficial downloads). Expected filenames in `public/favourites/`:
+- **Favourite Movies:** the list lives in `src/data/favourites.ts` (`movies`, in the owner's order). A card shows its poster only when that file exists under `public/` at build time; otherwise it shows a neutral placeholder. Posters must be authorised official artwork (no AI substitutes, no unofficial downloads). Poster files in `public/favourites/` (all nine present: JPEG, sRGB, at most 600 px wide, metadata stripped, each under 300 KB; `fit: 'contain'` letterboxes Donnie Darko, whose proportions differ from the 2:3 frame). The Covenant source is only 255×378 px, so replace it with a larger official image if one becomes available:
   - `the-covenant-2023.jpg`, `prisoners-2013.jpg`, `donnie-darko-2001.jpg`, `end-of-watch-2012.jpg`, `nightcrawler-2014.jpg`, `alice-in-borderland-2020.jpg`, `we-need-to-talk-about-kevin-2011.jpg`, `whiplash-2014.jpg`, `the-social-network-2010.jpg`
 
 ## Notes

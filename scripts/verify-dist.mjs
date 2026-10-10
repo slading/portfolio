@@ -229,6 +229,19 @@ if (movies.length > 0) {
   check(seriesCount === 1 && /Alice in Borderland/.test(favHtml), '/favourites: Alice in Borderland labelled as a TV series (exactly one label)');
   const posterSrcs = [...favHtml.matchAll(/<img[^>]+src="\/?([^"]*favourites\/[^"]+)"/g)].map((m) => m[1]);
   check(posterSrcs.every((src) => existsSync(join(dist, src))), '/favourites: every poster image in the markup exists in the build');
+  // Posters: each listed file exists, is a real JPEG under 300 KB, and is rendered when present.
+  const posterPaths = [...favSource.matchAll(/poster: '([^']+)'/g)].map((m) => m[1]);
+  check(posterPaths.length === movies.length, `/favourites: every entry declares a poster path (${posterPaths.length}/${movies.length})`);
+  const missingPosters = posterPaths.filter((p) => !existsSync(join(root, 'public', p)));
+  check(missingPosters.length === 0, `/favourites: all listed poster files present${missingPosters.length ? ` (missing: ${missingPosters.join(', ')})` : ''}`);
+  for (const p of posterPaths) {
+    const file = join(root, 'public', p);
+    if (!existsSync(file)) continue;
+    const buf = readFileSync(file);
+    check(buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff, `poster is a real JPEG (magic bytes): ${p}`);
+    check(buf.length <= 300_000, `poster under 300 KB: ${p} (${buf.length} bytes)`);
+    check(favHtml.includes(`src="/${p}"`), `/favourites: poster rendered on the page: ${p}`);
+  }
   check(!/[Rr]ating|review|★/.test(favHtml), '/favourites: no ratings or review markup');
 }
 
