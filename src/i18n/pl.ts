@@ -58,8 +58,10 @@ export const pl: Messages = {
 
   music: {
     kicker: 'Moja rotacja',
-    prev: 'Poprzedni utwór',
-    next: 'Następny utwór',
+    play: 'Odtwórz',
+    pause: 'Pauza',
+    seek: 'Przewiń',
+    error: 'Nie udało się odtworzyć nagrania. Użyj linku „Otwórz w Spotify”.',
     openSpotify: 'Otwórz w Spotify',
   },
 

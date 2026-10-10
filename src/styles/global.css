@@ -639,7 +639,7 @@ p {
 }
 
 /* ==========================================================================
-   My Rotation (Hero music showcase)
+   My Rotation (Hero music player, one track)
    ========================================================================== */
 .rotation {
   max-width: 380px;
@@ -655,7 +655,7 @@ p {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  min-height: 24px;
+  min-height: 16px;
 }
 
 .rotation-label {
@@ -666,50 +666,6 @@ p {
   color: var(--muted);
 }
 
-.rotation-nav {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.rotation-count {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.rotation-buttons {
-  display: none;
-  gap: 4px;
-}
-.rotation.is-ready .rotation-buttons {
-  display: flex;
-}
-
-.rotation-btn {
-  display: inline-grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
-  background: transparent;
-  color: var(--ink-2);
-  cursor: pointer;
-}
-.rotation-btn:hover {
-  border-color: var(--line-strong);
-  color: var(--ink);
-}
-
-.rotation-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
 .rotation-slide {
   display: flex;
   align-items: center;
@@ -717,24 +673,9 @@ p {
   margin-top: 12px;
   min-width: 0;
 }
-.rotation-slide[hidden] {
-  display: none;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .rotation-slide:not([hidden]) {
-    animation: rotation-in 0.24s ease-out;
-  }
-}
-@keyframes rotation-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
 
 .rotation-art {
+  position: relative;
   flex: none;
   display: grid;
   place-items: center;
@@ -746,18 +687,18 @@ p {
   color: var(--muted);
   overflow: hidden;
 }
-.rotation-art a,
+/* The neutral icon stays underneath; the artwork covers it once it loads. */
 .rotation-art img {
-  display: block;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-}
-.rotation-art img {
   object-fit: cover;
 }
 
 .rotation-text {
   min-width: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -786,9 +727,106 @@ p {
   text-overflow: ellipsis;
 }
 
+/* Player row: play/pause, seek, time. Shown only when the script has run. */
+.player {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.rotation.is-ready .player {
+  display: flex;
+}
+
+.play-btn {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--ink);
+  color: var(--bg);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.play-btn:hover {
+  transform: scale(1.05);
+}
+.ic-pause {
+  display: none;
+}
+.rotation[data-state='playing'] .ic-play {
+  display: none;
+}
+.rotation[data-state='playing'] .ic-pause {
+  display: block;
+}
+
+.music-seek {
+  flex: 1;
+  min-width: 0;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+.music-seek:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.music-time {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Equalizer: shown only while the audio element reports playback. */
+.eq {
+  display: none;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  flex: none;
+  color: var(--ink);
+}
+.rotation[data-state='playing'] .eq {
+  display: inline-flex;
+}
+.eq i {
+  display: block;
+  width: 3px;
+  height: 100%;
+  border-radius: 1px;
+  background: currentColor;
+  transform-origin: bottom;
+  animation: eq-bar 0.9s ease-in-out infinite;
+}
+.eq i:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.eq i:nth-child(3) {
+  animation-delay: -0.6s;
+}
+@keyframes eq-bar {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
 .rotation-open {
   align-self: flex-start;
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 11.5px;
   color: var(--ink-2);
   text-decoration: underline;
@@ -800,9 +838,20 @@ p {
   text-decoration-color: var(--ink);
 }
 
+.music-status {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--warn);
+}
+.music-status[hidden] {
+  display: none;
+}
+
 .rotation-title:focus-visible,
 .rotation-open:focus-visible,
-.rotation-btn:focus-visible {
+.play-btn:focus-visible,
+.music-seek:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
@@ -815,6 +864,16 @@ p {
   .rotation-art {
     width: 52px;
     height: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eq i {
+    animation: none;
+    transform: scaleY(0.6);
+  }
+  .play-btn {
+    transition: none;
   }
 }
 

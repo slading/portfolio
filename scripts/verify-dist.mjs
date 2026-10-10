@@ -9,7 +9,7 @@
  *  - no third-party font/CDN/analytics hosts
  *  - no "undefined", "[object Object]" or "NaN" in markup
  *  - every data-i18n key resolves in BOTH en and pl dictionaries
- *  - My Rotation: six Spotify tracks in the owner's order, verified metadata, Spotify links only; no embed, audio or playback code
+ *  - My Rotation: one track (Lolibox, Sewerslvt); Spotify link and artwork only; the audio player appears only when public/music/track.mp3 exists
  *  - GitHub grid renders one cell per day in src/data/github-contributions.json
  *  - retired Phase 1 assets are not in dist/
  */
@@ -121,67 +121,58 @@ for (const key of keys) {
 }
 if (keyFail === 0) pass(`all ${keys.size} data-i18n keys resolve in EN and PL`);
 
-console.log('My Rotation (Hero music showcase)');
-// The owner's six tracks, in the owner's order. Hard-coded on purpose, so the data file is checked against it.
-const expectedSpotifyIds = [
-  '4vP2Y2WVTCKeQjyJUmIfwl',
-  '3ctwglyi5wn9Okd1h1ZkPT',
-  '6DSR0HsTfpDlkJm7vEmLIr',
-  '3I32SxStmqEZORu2Q4phUO',
-  '0HEb8h395qcvn2KGZy3KFn',
-  '3Ksyal4c4OD5g69t52Sc4e',
-];
-const expectedTracks = [
-  ['Colddd', 'sauku'],
-  ['Ps Core', 'MZNK'],
-  ['i dont deserve to live', 'skinpeelr'],
-  ['Blazing in the Dark', 'GnB Chili, Kate Havnevik'],
-  ['_+<(>_<)>+_===**++++++++__[--_>>>>>]}}}', 'snafu'],
-  ['Lolibox', 'Sewerslvt'],
-];
+console.log('My Rotation (Hero music player, one track)');
+// The single track, hard-coded on purpose so the data file is checked against the owner's details.
+const expectedSpotifyId = '3Ksyal4c4OD5g69t52Sc4e';
+const expectedTitle = 'Lolibox';
+const expectedArtist = 'Sewerslvt';
 const musicSource = readFileSync(join(root, 'src/data/music.ts'), 'utf8');
 const sourceIds = [...musicSource.matchAll(/spotifyId: '([^']+)'/g)].map((m) => m[1]);
-check(JSON.stringify(sourceIds) === JSON.stringify(expectedSpotifyIds), "music data: six Spotify track IDs in the owner's exact order");
+check(JSON.stringify(sourceIds) === JSON.stringify([expectedSpotifyId]), 'music data: exactly one track (Lolibox), no others');
 const sourceMeta = [...musicSource.matchAll(/title: '([^']*)',\s*artist: '([^']*)'/g)].map((m) => [m[1], m[2]]);
-check(JSON.stringify(sourceMeta) === JSON.stringify(expectedTracks), 'music data: verified titles and artists match the checked list');
+check(JSON.stringify(sourceMeta) === JSON.stringify([[expectedTitle, expectedArtist]]), 'music data: title "Lolibox" and artist "Sewerslvt" exact');
 
 const mStart = html.indexOf('<section id="music"');
 const mEnd = mStart >= 0 ? html.indexOf('</section>', mStart) : -1;
 const musicHtml = mStart >= 0 && mEnd > mStart ? html.slice(mStart, mEnd + '</section>'.length) : '';
 check(musicHtml.length > 0, 'music section rendered in the Hero');
-const decoded = musicHtml.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+const musicDecoded = musicHtml.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+check(musicDecoded.includes(`${expectedTitle}</a>`), 'title "Lolibox" rendered');
+check(musicDecoded.includes(`<span class="rotation-artist">${expectedArtist}</span>`), 'artist "Sewerslvt" rendered');
 const musicAnchors = [...musicHtml.matchAll(/<a\b[^>]*>/g)].map((m) => m[0]);
-const hrefOf = (a) => (a.match(/href="([^"]+)"/) || [])[1];
-const expectedUrls = expectedSpotifyIds.map((id) => `https://open.spotify.com/track/${id}`);
-
-const slideTags = [...musicHtml.matchAll(/<li\b[^>]*data-music-slide[^>]*>/g)].map((m) => m[0]);
-check(slideTags.length === 6, `six track slides rendered (found ${slideTags.length})`);
-check(slideTags.length === 6 && !/\bhidden\b/.test(slideTags[0]) && slideTags.slice(1).every((t) => /\bhidden\b/.test(t)), 'only the first slide is visible on load');
-const openUrls = musicAnchors.filter((a) => /rotation-open/.test(a)).map(hrefOf);
-check(JSON.stringify(openUrls) === JSON.stringify(expectedUrls), 'six "Open in Spotify" links, in the owner\'s order');
-const titleUrls = musicAnchors.filter((a) => /rotation-title/.test(a)).map(hrefOf);
-check(JSON.stringify(titleUrls) === JSON.stringify(expectedUrls), 'six title links point to the same six tracks');
-for (const [i, [title, artist]] of expectedTracks.entries()) {
-  check(decoded.includes(`${title}</a>`), `track ${i + 1} title rendered: ${title}`);
-  check(decoded.includes(`<span class="rotation-artist">${artist}</span>`), `track ${i + 1} artist rendered: ${artist}`);
-}
+const openHrefs = musicAnchors.filter((a) => /rotation-(open|title)/.test(a)).map((a) => (a.match(/href="([^"]+)"/) || [])[1]);
+check(openHrefs.length === 2 && openHrefs.every((h) => h === `https://open.spotify.com/track/${expectedSpotifyId}`), 'Open in Spotify and title link point to the Lolibox track');
 const imgSrcs = [...musicHtml.matchAll(/<img\b[^>]*src="([^"]+)"/g)].map((m) => m[1]);
-check(imgSrcs.length === 6 && imgSrcs.every((s) => /^https:\/\/image-cdn-(ak|fa)\.spotifycdn\.com\//.test(s)), 'six artwork images, Spotify CDN only');
-check(musicHtml.includes('01 / 06'), 'counter starts at 01 / 06');
-check(/class="rotation-label"[^>]*>My Rotation</.test(musicHtml), 'small "My Rotation" label present (English)');
-check(/data-music-prev/.test(musicHtml) && /data-music-next/.test(musicHtml), 'previous and next controls present');
-check(!/class="rotation[^"]*is-ready/.test(html), 'controls hidden until the script marks the card ready');
+check(imgSrcs.every((s) => /^https:\/\/image-cdn-(ak|fa)\.spotifycdn\.com\//.test(s) || /^\/?music\/cover\.jpg$|\/music\/cover\.jpg$/.test(s)), 'artwork: Spotify CDN, or owner cover.jpg only');
+check(!/rotation-slide[^"]*"[^>]*hidden|data-music-slide/.test(musicHtml), 'no leftover multi-track slide markup');
 
-// Removed in this redesign: no embed, no playback, no progress, no status text.
+// Nothing that embeds or auto-starts Spotify or audio.
 check(!/<iframe[^>]*open\.spotify\.com/i.test(html), 'no Spotify iframe in static HTML');
 check(!/iframe-api/.test(html), 'no Spotify iFrame API script in static HTML');
 check(!/open\.spotify\.com\/embed/.test(html), 'no Spotify embed URL in static HTML');
-check(!/<audio[\s>]/i.test(html), 'no <audio> element');
-check(!/autoplay/i.test(html), 'no autoplay attribute');
-check(!/data-music-(play|pause|seek|embed|current|duration|bar|fill|status|eq)\b/.test(html), 'no playback, progress, timer or status hooks');
-check(!/aria-pressed/.test(musicHtml), 'no toggle (pressed) state on the music card');
-check(!/aria-label="(Play|Pause)"|>\s*(Play|Pause)\s*</.test(musicHtml), 'no Play or Pause button');
-check(!/progress|Now playing|Playing|could not load|music-note|music-embed/i.test(musicHtml), 'no progress bar, status text or limitation note');
+check(!/autoplay/i.test(html), 'no autoplay attribute anywhere');
+check(!/aria-pressed/.test(musicHtml), 'no pressed-state toggle in the music card');
+
+const audioPresent = existsSync(join(root, 'public/music/track.mp3'));
+if (audioPresent) {
+  check(/<audio\b[^>]*data-music-audio[^>]*preload="none"/.test(musicHtml), 'audio: native <audio>, preload="none" (nothing loads until play)');
+  check(!/<audio\b[^>]*autoplay/i.test(musicHtml), 'audio: no autoplay');
+  check(/<audio\b[^>]*src="[^"]*music\/track\.mp3"/.test(musicHtml), 'audio: src points to music/track.mp3');
+  check(/data-music-play/.test(musicHtml) && /data-music-seek/.test(musicHtml), 'audio: play/pause and seek controls present');
+  const distAudio = join(dist, 'music/track.mp3');
+  check(existsSync(distAudio), 'audio: music/track.mp3 copied into dist');
+  if (existsSync(distAudio)) {
+    const bytes = readFileSync(distAudio);
+    const isMp3 = (bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) || (bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0);
+    check(isMp3 && bytes.length > 100000, `audio: track.mp3 is an MP3 file (${bytes.length} bytes)`);
+    check(bytes.length === statSync(join(root, 'public/music/track.mp3')).size, 'audio: dist copy matches the source file');
+  }
+} else {
+  check(!/<audio[\s>]/i.test(html), 'no audio file: no <audio> element');
+  check(!/data-music-play|data-music-seek/.test(html), 'no audio file: no play or seek control (nothing to play)');
+  check(/rotation-open/.test(musicHtml), 'no audio file: Spotify link still available');
+}
+
 const jsDir = join(dist, '_astro');
 const jsBundles = readdirSync(jsDir).filter((f) => f.endsWith('.js'));
 const jsText = jsBundles.map((f) => readFileSync(join(jsDir, f), 'utf8')).join('\n');

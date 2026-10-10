@@ -30,7 +30,7 @@ npm run verify       # check + build + dist checks
 src/
   i18n/          en.ts (default), pl.ts (typed to match en), index.ts (lookup, storage keys)
   data/          projects.ts (featured/additional projects, links, email), stack.ts (tech tiles),
-                 music.ts (six Spotify tracks, in order, with verified metadata), github-contributions.json (generated snapshot)
+                 music.ts (the single My Rotation track, with verified metadata), github-contributions.json (generated snapshot)
   layouts/       Base.astro (head, theme-before-paint script, column, search dialog)
   components/    Nav, Hero, MusicPlayer, TechStack, Approach, Projects, GitHubActivity,
                  Footer, SearchDialog
@@ -68,13 +68,25 @@ If the fetch fails, the script exits with an error and leaves the existing file 
 - Default language is **English**. Visitors can switch to Polish with the EN/PL control in the footer. The choice is stored in `localStorage` (`portfolio-language`).
 - Theme follows the system preference until the visitor toggles it. The choice is stored as `portfolio-theme`.
 
-## My Rotation (Hero music showcase)
+## My Rotation (Hero music player)
 
-The Hero card shows six Spotify tracks, in the owner's order, with artwork, title and artist. It is a showcase only. It plays nothing inside the site: there is no embed, no iFrame API, no audio file, no progress bar and no Play button. Every title, artwork and "Open in Spotify" link opens the track on Spotify.
+The Hero card shows one track: **Lolibox by Sewerslvt**. Title and artist are exact, and the Spotify track ID is in `src/data/music.ts`.
 
-- **Tracks:** six Spotify track IDs in `src/data/music.ts`, in the owner's order. Title, artist and artwork were checked against Spotify's public pages (oEmbed and the embed page). Do not invent metadata. Track 5's title is literal Spotify text and is kept as is.
-- **Navigation:** previous and next cycle through the six tracks and wrap around. The buttons appear only once the script runs, so the card never shows a control that does nothing. Without JavaScript the first track shows.
-- **Checks:** `scripts/verify-dist.mjs` confirms the six IDs and their order, the verified titles and artists, the six Spotify links, the Spotify-only artwork hosts, and that no embed, iFrame API, audio, autoplay or playback control is in the output.
+The card has two states, decided at build time:
+
+- **Audio file present** (`public/music/track.mp3`): a compact native HTML5 player with play/pause, a seek bar and a time readout. An equalizer shows only while the audio element reports playback. The file loads only when the visitor presses play (`preload="none"`), and nothing autoplays.
+- **Audio file absent:** the card shows the artwork, title, artist and an "Open in Spotify" link, with no controls. A player that cannot play is never shown.
+
+The site never uses Spotify's embed, its iFrame API, or a 30-second preview.
+
+**Artwork:** if `public/music/cover.jpg` exists it is used. Otherwise Spotify's own cover image for the track is shown. If that image cannot load, a neutral icon is shown instead.
+
+**Adding the audio:**
+1. Place the file at `public/music/track.mp3` (MP3, the owner's own recording or one licensed for this use).
+2. Optionally place a square cover at `public/music/cover.jpg`.
+3. Rebuild. `scripts/verify-dist.mjs` checks that the file is an MP3, that it is copied to `dist/`, and that the player markup is present.
+
+Without the file, the card still works as a showcase with the Spotify link.
 
 ## Subpages
 

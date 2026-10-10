@@ -60,8 +60,10 @@ export const en = {
 
   music: {
     kicker: 'My Rotation',
-    prev: 'Previous track',
-    next: 'Next track',
+    play: 'Play',
+    pause: 'Pause',
+    seek: 'Seek',
+    error: 'The audio could not be played here. Use “Open in Spotify” instead.',
     openSpotify: 'Open in Spotify',
   },
 
