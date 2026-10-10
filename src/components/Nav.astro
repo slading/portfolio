@@ -1,15 +1,18 @@
 ---
 import { t } from '../i18n';
 import BrandMark from './BrandMark.astro';
+
+// Absolute, base-aware links so the nav works on every page, not only the homepage.
+const base = import.meta.env.BASE_URL;
 ---
 
 <header class="nav">
   <nav class="nav-inner" aria-label={t('ui.navAria')}>
-    <a class="brand" href="#top" aria-label="Yauheni Buka — home"><BrandMark /></a>
+    <a class="brand" href={base} aria-label="Yauheni Buka — home"><BrandMark /></a>
     <ul class="nav-links">
-      <li><a class="nav-link" href="#top" data-i18n="nav.home">{t('nav.home')}</a></li>
-      <li><a class="nav-link" href="#about" data-i18n="nav.about">{t('nav.about')}</a></li>
-      <li><a class="nav-link" href="#projects" data-i18n="nav.projects">{t('nav.projects')}</a></li>
+      <li><a class="nav-link" href={base} data-i18n="nav.home">{t('nav.home')}</a></li>
+      <li><a class="nav-link" href={`${base}#about`} data-i18n="nav.about">{t('nav.about')}</a></li>
+      <li><a class="nav-link" href={`${base}#projects`} data-i18n="nav.projects">{t('nav.projects')}</a></li>
       <li class="nav-more">
         <details data-menu>
           <summary>
@@ -17,12 +20,8 @@ import BrandMark from './BrandMark.astro';
             <span class="caret" aria-hidden="true">▾</span>
           </summary>
           <ul class="menu">
-            <li>
-              <span aria-disabled="true"><span data-i18n="nav.resume">{t('nav.resume')}</span><em class="badge-soon" data-i18n="ui.soon" style="font-style:normal">{t('ui.soon')}</em></span>
-            </li>
-            <li>
-              <span aria-disabled="true"><span data-i18n="nav.movies">{t('nav.movies')}</span><em class="badge-soon" data-i18n="ui.soon" style="font-style:normal">{t('ui.soon')}</em></span>
-            </li>
+            <li><a href={`${base}resume/`} data-i18n="nav.resume">{t('nav.resume')}</a></li>
+            <li><a href={`${base}favourites/`} data-i18n="nav.movies">{t('nav.movies')}</a></li>
           </ul>
         </details>
       </li>

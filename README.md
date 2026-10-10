@@ -76,9 +76,12 @@ To enable it:
 1. Put the audio file under `public/audio/` (and optional cover art under `public/audio/covers/`).
 2. Add an entry to `tracks` in `src/data/music.ts`, e.g. `{ id: 'main', title: 'Track title', artist: 'Artist', src: '/audio/main.mp3' }`.
 
-## Pages not yet built
+## Subpages
 
-Nav → More lists **Resume** and **Favourite Movies**. Both are shown as "soon" and are not linked until those pages exist.
+More menu → **Resume** (`/resume/`) and **Favourite Movies** (`/favourites/`). Both are also in command search (Ctrl+K / ⌘K).
+
+- **Resume:** the page shows the owner's CV only when `public/cv/yauheni-buka-cv.pdf` exists at build time. Without it, the page shows a "CV not published yet" state. Never put another person's CV at this path.
+- **Favourite Movies:** the list lives in `src/data/favourites.ts` (`movies`, empty by default). Add titles there. Poster images go in `public/favourites/` and are optional; without one, the card shows the title as text.
 
 ## Notes
 

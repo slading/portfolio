@@ -1,17 +1,24 @@
 ---
 import { t } from '../i18n';
 
-/** Each entry is a link target in the page. Labels are translated via data-i18n. */
+const base = import.meta.env.BASE_URL;
+
+/**
+ * Each entry links into the site. Anchors on the homepage are prefixed with the base
+ * path so they work from every page. Labels are translated via data-i18n.
+ */
 const items = [
-  { key: 'home', href: '#top' },
-  { key: 'about', href: '#about' },
-  { key: 'projects', href: '#projects' },
-  { key: 'n2d', href: '#project-n2d' },
-  { key: 'sentinel', href: '#project-sentinel' },
-  { key: 'rfq', href: '#project-rfq' },
-  { key: 'solana', href: '#project-solana' },
-  { key: 'github', href: '#github' },
-  { key: 'music', href: '#music' },
+  { key: 'home', href: base },
+  { key: 'about', href: `${base}#about` },
+  { key: 'projects', href: `${base}#projects` },
+  { key: 'n2d', href: `${base}#project-n2d` },
+  { key: 'sentinel', href: `${base}#project-sentinel` },
+  { key: 'rfq', href: `${base}#project-rfq` },
+  { key: 'solana', href: `${base}#project-solana` },
+  { key: 'github', href: `${base}#github` },
+  { key: 'music', href: `${base}#music` },
+  { key: 'resume', href: `${base}resume/` },
+  { key: 'favourites', href: `${base}favourites/` },
   { key: 'contact', href: 'mailto:yauhenibuka@gmail.com' },
 ];
 ---
@@ -39,7 +46,11 @@ const items = [
       <li id={`search-opt-${i}`} role="option" data-search-item>
         <a href={item.href}>
           <span data-i18n={`search.items.${item.key}`}>{t(`search.items.${item.key}`)}</span>
-          <span class="muted" style="font-size:12px">{item.href.startsWith('#') ? item.href : 'email'}</span>
+          {item.href.startsWith('mailto:') ? (
+            <span class="muted" style="font-size:12px" data-i18n="search.emailHint">{t('search.emailHint')}</span>
+          ) : (
+            <span class="muted" style="font-size:12px">{item.href.replace(base, '/')}</span>
+          )}
         </a>
       </li>
     ))}

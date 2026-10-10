@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import { t } from '../i18n';
+import { movies } from '../data/favourites';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<Base title="Favourite Movies | Yauheni Buka">
+  <section class="page-head reveal show" aria-labelledby="fav-title">
+    <h1 id="fav-title" class="page-title" data-i18n="pages.favourites.title">{t('pages.favourites.title')}</h1>
+    <p class="page-intro" data-i18n="pages.favourites.intro">{t('pages.favourites.intro')}</p>
+  </section>
+
+  <section class="section reveal show" aria-labelledby="fav-movies">
+    <p class="kicker" id="fav-movies" data-i18n="pages.favourites.moviesKicker">{t('pages.favourites.moviesKicker')}</p>
+
+    {movies.length === 0 ? (
+      <div class="cv-empty" role="status" style="margin-top:16px">
+        <p class="cv-empty-title" data-i18n="pages.favourites.emptyTitle">{t('pages.favourites.emptyTitle')}</p>
+        <p class="muted" data-i18n="pages.favourites.emptyText">{t('pages.favourites.emptyText')}</p>
+      </div>
+    ) : (
+      <ul class="poster-grid">
+        {movies.map((m) => (
+          <li>
+            <figure class="poster-card">
+              <div class="poster-frame">
+                {m.poster ? (
+                  <img src={`${base}${m.poster}`} alt={`${m.title} (${m.year})`} loading="lazy" decoding="async" />
+                ) : (
+                  <div class="poster-text">{m.title}</div>
+                )}
+              </div>
+              <figcaption class="poster-caption">{m.title} · {m.year}</figcaption>
+            </figure>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</Base>

@@ -122,11 +122,11 @@ export const pl: Messages = {
             text: 'Rezerwacje, dostępność i zmiany terminów wymagają spójnego procesu po stronie klientek i zespołu salonu.',
           },
           {
-            label: 'BUILT',
+            label: 'ZBUDOWANO',
             text: 'Customer booking flow, staff/admin workflows, baza danych i auth oparte o Supabase oraz serwerowa logika dostępności i pojemności.',
           },
           {
-            label: 'CAPABILITIES',
+            label: 'MOŻLIWOŚCI',
             text: 'Wybór salonu, usługi, daty i godziny; planowanie uwzględniające czas trwania; ręczne rezerwacje personelu; zablokowane okresy; zmiana terminu; anulowanie; dane kontaktowe klientki; notatki i opcjonalne zdjęcie referencyjne.',
           },
           {
@@ -145,11 +145,11 @@ export const pl: Messages = {
             text: 'Podejrzane wzorce transakcji trudno konsekwentnie przeglądać na większą skalę.',
           },
           {
-            label: 'BUILT',
+            label: 'ZBUDOWANO',
             text: 'Wykrywanie anomalii wieloetapowych, skoków częstotliwości i niezgodności lokalizacji; ustrukturyzowane oceny ryzyka, routing alertów i łańcuch audytowy.',
           },
           {
-            label: 'ENGINEERING',
+            label: 'INŻYNIERIA',
             text: 'Statystyczne sygnały fraud/anomaly i łańcuch logów audytowych SHA-256, z możliwymi ścieżkami wdrożenia przez Docker i Vercel.',
           },
           {
@@ -173,11 +173,11 @@ export const pl: Messages = {
             text: 'Surowe dane transakcji on-chain są zagnieżdżone, niespójne i trudne do wyjaśnienia bez kanonicznego modelu.',
           },
           {
-            label: 'BUILT',
+            label: 'ZBUDOWANO',
             text: 'TypeScript CLI, realne transakcje Solana mainnet przez JSON-RPC, normalizacja do kanonicznego modelu, obsługa instrukcji top-level i inner, logów oraz zmian salda.',
           },
           {
-            label: 'DETAIL',
+            label: 'SZCZEGÓŁY',
             text: 'Podsumowania akcji/efektów/swapów, jawne diagnostyki nieznanych danych, dokładne delty salda, transakcje wersjonowane i testy fixture-based z zapisanych payloadów RPC.',
           },
           {
@@ -201,7 +201,28 @@ export const pl: Messages = {
     unavailable: 'Dane o aktywności są teraz niedostępne.',
   },
 
+  pages: {
+    resume: {
+      title: 'CV',
+      intro: 'Moje CV w formie PDF: doświadczenie, edukacja i umiejętności.',
+      openPdf: 'Otwórz PDF',
+      download: 'Pobierz',
+      viewerTitle: 'CV w formacie PDF',
+      viewerFallback: 'Jeśli PDF nie wyświetla się tutaj, użyj opcji Otwórz PDF.',
+      pendingTitle: 'CV nie zostało jeszcze opublikowane',
+      pendingText: 'PDF pojawi się tutaj, gdy zostanie dodany do strony.',
+    },
+    favourites: {
+      title: 'Ulubione',
+      intro: 'Filmy, do których wracam. Lista będzie uzupełniana tytuł po tytule.',
+      moviesKicker: 'Filmy',
+      emptyTitle: 'Nie dodano jeszcze filmów',
+      emptyText: 'Lista pojawi się tutaj po jej dodaniu.',
+    },
+  },
+
   search: {
+    emailHint: 'e-mail',
     items: {
       home: 'Start',
       about: 'O mnie',
@@ -213,6 +234,8 @@ export const pl: Messages = {
       github: 'Aktywność na GitHub',
       music: 'Muzyka',
       contact: 'Napisz do mnie',
+      resume: 'CV',
+      favourites: 'Ulubione filmy',
     },
   },
 

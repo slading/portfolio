@@ -203,7 +203,28 @@ export const en = {
     unavailable: 'Activity data is not available right now.',
   },
 
+  pages: {
+    resume: {
+      title: 'Resume',
+      intro: 'My CV in PDF form: experience, education and skills.',
+      openPdf: 'Open PDF',
+      download: 'Download',
+      viewerTitle: 'Resume PDF',
+      viewerFallback: 'If the PDF does not display here, use Open PDF.',
+      pendingTitle: 'CV not published yet',
+      pendingText: 'The PDF will appear here once it is added to the site.',
+    },
+    favourites: {
+      title: 'Favourites',
+      intro: 'Films I keep coming back to. The list is added title by title.',
+      moviesKicker: 'Movies',
+      emptyTitle: 'No films listed yet',
+      emptyText: 'The list will appear here once it is added.',
+    },
+  },
+
   search: {
+    emailHint: 'email',
     items: {
       home: 'Home',
       about: 'About',
@@ -215,6 +236,8 @@ export const en = {
       github: 'GitHub activity',
       music: 'Music',
       contact: 'Email me',
+      resume: 'Resume',
+      favourites: 'Favourite Movies',
     },
   },
 

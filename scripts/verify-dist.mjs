@@ -154,5 +154,50 @@ for (const r of retired) {
   check(!existsSync(join(dist, r)), `retired path not published: ${r}`);
 }
 
+console.log('Subpages');
+const subpages = [
+  { file: 'resume/index.html', path: '/resume/' },
+  { file: 'favourites/index.html', path: '/favourites/' },
+];
+const cvPresent = existsSync(join(root, 'public/cv/yauheni-buka-cv.pdf'));
+// Count movie entries in src/data/favourites.ts (entries are the lines with a string title).
+const movies = [...readFileSync(join(root, 'src/data/favourites.ts'), 'utf8').matchAll(/^\s+title: '/gm)];
+for (const page of subpages) {
+  const p = join(dist, page.file);
+  if (!existsSync(p)) {
+    fail(`${page.path} was not built`);
+    continue;
+  }
+  const h = readFileSync(p, 'utf8');
+  check(h.includes(`<link rel="canonical" href="https://exotision.fun${page.path}">`), `${page.path}: canonical URL`);
+  check(/<h1[^>]*class="page-title"/.test(h), `${page.path}: page heading present`);
+  check(/href="\/resume\/"/.test(h) && /href="\/favourites\/"/.test(h), `${page.path}: More menu links to both pages`);
+  check(/href="\/#about"/.test(h), `${page.path}: nav links to homepage sections with absolute paths`);
+  check(!/undefined|\[object Object\]|NaN/.test(h), `${page.path}: no undefined / NaN in markup`);
+  const pageKeys = [...h.matchAll(/data-i18n(?:-[a-z]+)?="([^"]+)"/g)].map((m) => m[1]);
+  const badKeys = pageKeys.filter((k) => ['en', 'pl'].some((lang) => {
+    const v = resolveKey(dicts[lang], k);
+    return typeof v !== 'string' || v.trim() === '';
+  }));
+  check(badKeys.length === 0, `${page.path}: all i18n keys resolve in EN and PL${badKeys.length ? ` (bad: ${badKeys.join(', ')})` : ''}`);
+  const pageLocal = [...h.matchAll(/(?:href|src)="(\/[^"#?]+)/g)].map((m) => m[1]);
+  const pageMissing = pageLocal.filter((r) => {
+    const f = join(dist, decodeURIComponent(r));
+    return !(existsSync(f) && statSync(f).isFile()) && !r.endsWith('/');
+  });
+  check(pageMissing.length === 0, `${page.path}: local references resolve${pageMissing.length ? ` (missing: ${pageMissing.join(', ')})` : ''}`);
+}
+const resumeHtml = readFileSync(join(dist, 'resume/index.html'), 'utf8');
+if (cvPresent) {
+  check(/<iframe src="\/cv\/yauheni-buka-cv\.pdf/.test(resumeHtml), '/resume: CV viewer rendered (CV file present)');
+} else {
+  check(!/<iframe/.test(resumeHtml), '/resume: no viewer without the CV file (no substitute document)');
+  check(/CV not published yet/.test(resumeHtml), '/resume: "not published yet" state shown');
+}
+const favHtml = readFileSync(join(dist, 'favourites/index.html'), 'utf8');
+const favCount = (favHtml.match(/class="poster-card"/g) || []).length;
+check(favCount === movies.length, `/favourites: poster count matches src/data/favourites.ts (${favCount}/${movies.length})`);
+if (movies.length === 0) check(/No films listed yet/.test(favHtml), '/favourites: empty state shown');
+
 console.log(`\n${passes} passed, ${failures} failed`);
 process.exit(failures ? 1 : 0);
