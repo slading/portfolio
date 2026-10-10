@@ -24,7 +24,6 @@ export interface Project {
   /** Tech ids from src/data/stack.ts. */
   stack: string[];
   /** Pending details: no links are shown until the owner supplies them. */
-  pending?: boolean;
 }
 
 export const featured: Project[] = [
@@ -45,7 +44,6 @@ export const featured: Project[] = [
     anchor: 'project-rfq',
     links: [],
     stack: [],
-    pending: true,
   },
   {
     id: 'sentinel',

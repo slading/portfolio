@@ -155,7 +155,8 @@ export const en = {
       },
       rfq: {
         name: 'Project 04 — AI RFQ Operations Agent',
-        summary: 'Details pending. The owner will provide the description and repository link.',
+        summary:
+          'An engineering prototype for processing incoming requests for quotation (RFQs). Built around structured data extraction, deterministic validation, and human review to make complex quotation workflows more reliable and easier to manage.',
         facts: [],
       },
       solana: {

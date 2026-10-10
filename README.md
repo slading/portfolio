@@ -50,7 +50,7 @@ scripts/
 
 - **Copy** lives only in `src/i18n/en.ts` and `src/i18n/pl.ts`. Add a key to both files; TypeScript fails the build if they drift.
 - **Projects** are in `src/data/projects.ts`. Each card shows its status (Production / Prototype / Technical proof), stack badges, links, and an in-page case study (the expandable "Case study" panel).
-- **Owner review needed:** the hero introduction, the three approach items, and the RFQ project copy (Project 04) were written for this redesign. Confirm the wording before publishing. Text that came from the verified previous site is unchanged.
+- **Owner review needed:** the hero introduction and the three approach items were written for this redesign. The RFQ project summary (Project 04) is the owner's own text; its Polish version is a draft to confirm. Text that came from the verified previous site is unchanged.
 - Do not add achievements, metrics, employers, or dates that the owner has not verified.
 
 ## GitHub activity
