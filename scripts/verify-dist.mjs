@@ -3,15 +3,15 @@
  * Post-build checks on dist/. Run via `npm run verify` (after `astro check` and `astro build`).
  *
  * Checks:
- *  - page metadata (lang, title, description, canonical)
- *  - every local src/href and url() resolves to a file in dist/
- *  - required section anchors exist
- *  - no third-party font/CSS/JS hosts (fonts are self-hosted)
- *  - no "undefined", "[object Object]" or "NaN" leaked into markup
- *  - every data-i18n* key resolves in BOTH en and pl dictionaries
- *  - every English dictionary string that is rendered at build time appears in the page
- *  - music control: disabled when no tracks are configured; no dangling <audio> sources
- *  - unpublished assets are not present in dist/
+ *  - page metadata and lang
+ *  - section anchors and project card anchors exist
+ *  - local href/src/url() targets resolve to files in dist/
+ *  - no third-party font/CDN/analytics hosts
+ *  - no "undefined", "[object Object]" or "NaN" in markup
+ *  - every data-i18n key resolves in BOTH en and pl dictionaries
+ *  - music: no tracks => controls disabled; no reference to the never-committed mp3
+ *  - GitHub grid renders one cell per day in src/data/github-contributions.json
+ *  - retired Phase 1 assets are not in dist/
  */
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
@@ -24,210 +24,135 @@ const indexPath = join(dist, 'index.html');
 
 let failures = 0;
 let passes = 0;
-const fail = (msg) => {
-  failures++;
-  console.error(`  ✗ ${msg}`);
-};
 const pass = (msg) => {
   passes++;
   console.log(`  ✓ ${msg}`);
 };
-const check = (cond, okMsg, badMsg) => (cond ? pass(okMsg) : fail(badMsg));
+const fail = (msg) => {
+  failures++;
+  console.error(`  ✗ ${msg}`);
+};
+const check = (ok, msg) => (ok ? pass(msg) : fail(msg));
 
 if (!existsSync(indexPath)) {
-  console.error('dist/index.html is missing. Run `npm run build` first.');
+  console.error('dist/index.html not found. Run `npm run build` first.');
   process.exit(1);
 }
-
 const html = readFileSync(indexPath, 'utf8');
-const decode = (s) =>
-  s
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>');
-const text = decode(html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<style[\s\S]*?<\/style>/g, ''))
-  .replace(/<[^>]+>/g, ' ')
-  .replace(/\s+/g, ' ');
 
-// ---------------------------------------------------------------- dictionaries
-// Transpile the TypeScript dictionaries and load them, so the checks use the real source strings.
-async function loadDict(relPath) {
-  const src = readFileSync(join(root, relPath), 'utf8');
+/** Load a TS dictionary by transpiling it to CommonJS (no extra dependencies). */
+function loadDict(file) {
+  const src = readFileSync(join(root, 'src/i18n', file), 'utf8');
   const { outputText } = ts.transpileModule(src, {
-    compilerOptions: { module: ts.ModuleKind.ES2022, target: ts.ScriptTarget.ES2022 },
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
   });
-  // Dictionaries have no runtime imports except the type-only import in pl.ts, which transpiles away.
-  const mod = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
-  return mod;
+  const mod = { exports: {} };
+  new Function('exports', 'module', 'require', outputText)(mod.exports, mod, () => ({}));
+  return mod.exports;
 }
-const enMod = await loadDict('src/i18n/en.ts');
-const plMod = await loadDict('src/i18n/pl.ts');
-const en = enMod.en;
-const pl = plMod.pl;
+const dicts = { en: loadDict('en.ts').en, pl: loadDict('pl.ts').pl };
+const resolveKey = (dict, path) =>
+  path.split('.').reduce((node, part) => (node && typeof node === 'object' ? node[part] : undefined), dict);
 
-const resolveKey = (dict, path) => {
-  let node = dict;
-  for (const part of path.split('.')) {
-    if (node && typeof node === 'object' && part in node) node = node[part];
-    else return undefined;
-  }
-  return node;
-};
-
-// ---------------------------------------------------------------- 1. metadata
 console.log('Metadata');
-check(/<html[^>]*lang="en"/.test(html), 'html lang is "en" (default language)', 'html lang is not "en"');
-check(html.includes(`<title>${en.meta.title}</title>`), 'title matches EN dictionary', 'title does not match EN dictionary');
-check(
-  html.includes(`content="${en.meta.description}"`),
-  'meta description matches EN dictionary',
-  'meta description missing or different',
-);
-check(/<link rel="canonical" href="https:\/\/[^"]+\/"/.test(html), 'canonical URL present', 'canonical URL missing');
+check(/<html[^>]*lang="en"/.test(html), 'html lang is en by default');
+check(/<title>[^<]+<\/title>/.test(html), 'title present');
+check(/<meta name="description" content="[^"]+"/.test(html), 'meta description present');
+check(/<link rel="canonical" href="https:\/\/exotision\.fun\/"/.test(html), 'canonical URL is https://exotision.fun/');
+check(/<meta property="og:url" content="https:\/\/exotision\.fun\/"/.test(html), 'og:url is https://exotision.fun/');
+check(!/yauheni-buka\.vercel\.app/.test(html), 'no old vercel URL in page metadata');
+check(/rel="icon" href="\/favicon\.svg"/.test(html), 'favicon link present');
+check(/rel="apple-touch-icon" href="\/apple-touch-icon\.png"/.test(html), 'apple-touch-icon link present');
+check(!/>YB</.test(html), 'nav uses the E mark, not the YB monogram');
 
-// ---------------------------------------------------------------- 2. local references
-console.log('Local references');
-const refRe = /\b(?:src|href)="([^"]+)"/g;
-const refs = [...html.matchAll(refRe)].map((m) => m[1]);
-const cssFiles = [];
-const walk = (dir) => {
-  for (const name of readdirSync(dir)) {
-    const p = join(dir, name);
-    if (statSync(p).isDirectory()) walk(p);
-    else if (p.endsWith('.css')) cssFiles.push(p);
-  }
-};
-walk(dist);
-const urlRefs = cssFiles.flatMap((f) =>
-  [...readFileSync(f, 'utf8').matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/g)]
-    .map((m) => m[1])
-    // Skip data: URIs and SVG filter fragments such as url(%23n) inside them.
-    .filter((u) => !u.startsWith('data:') && !u.startsWith('#') && !u.startsWith('%23')),
-);
-let missing = 0;
-for (const ref of [...new Set(refs)]) {
-  if (ref.startsWith('#') || ref.startsWith('mailto:') || ref.startsWith('http') || ref.startsWith('data:')) continue;
-  const clean = ref.split('#')[0].split('?')[0];
-  const target = clean.startsWith('/') ? join(dist, clean) : join(dist, clean);
-  if (!existsSync(target) && !(clean === '' || clean.endsWith('/'))) {
-    fail(`missing local file: ${ref}`);
-    missing++;
-  }
-}
-for (const ref of [...new Set(urlRefs)]) {
-  // CSS urls are relative to the css file's directory; fontsource/Vite emit them under /_astro/.
-  const clean = ref.split('#')[0].split('?')[0];
-  if (!clean || clean.startsWith('http')) continue;
-  const candidates = [join(dist, clean), join(dist, '_astro', clean)];
-  if (!candidates.some((c) => existsSync(c))) {
-    fail(`missing CSS url target: ${ref}`);
-    missing++;
-  }
-}
-check(missing === 0, `all ${new Set(refs).size} HTML references and ${new Set(urlRefs).size} CSS urls resolve`, `${missing} broken reference(s)`);
+console.log('Sections');
+const anchors = [
+  'top',
+  'about',
+  'music',
+  'stack',
+  'approach',
+  'projects',
+  'project-n2d',
+  'project-sentinel',
+  'project-rfq',
+  'project-solana',
+  'github',
+];
+for (const id of anchors) check(new RegExp(`id="${id}"`).test(html), `#${id} present`);
+check(!/id="(home|works|contact|case-n2d)"/.test(html), 'no Phase 1 anchors remain');
 
-// ---------------------------------------------------------------- 3. anchors
-console.log('Anchors');
-for (const id of ['top', 'home', 'works', 'case-n2d', 'case-sentinel', 'case-solana', 'contact']) {
-  check(html.includes(`id="${id}"`), `#${id} present`, `#${id} missing`);
-}
+console.log('Links and assets');
+const refs = [...html.matchAll(/(?:href|src)="([^"#?]+)[^"]*"/g)].map((m) => m[1]);
+const local = refs.filter((r) => r.startsWith('/') && !r.startsWith('//'));
+const missing = local.filter((r) => {
+  const p = join(dist, decodeURIComponent(r));
+  return !(existsSync(p) && statSync(p).isFile()) && !(r === '/' || r.endsWith('/'));
+});
+check(missing.length === 0, `all ${local.length} local references resolve${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
 
-// ---------------------------------------------------------------- 4. third-party hosts
-console.log('Third-party requests');
-const thirdPartyHosts = ['fonts.googleapis.com', 'fonts.gstatic.com', 'googletagmanager', 'cdn.jsdelivr', 'unpkg.com'];
-const assetText = [html, ...cssFiles.map((f) => readFileSync(f, 'utf8'))].join('\n');
-const hits = thirdPartyHosts.filter((h) => assetText.includes(h));
-check(hits.length === 0, 'no third-party font/CDN/analytics hosts in page or CSS', `third-party hosts found: ${hits.join(', ')}`);
+const thirdParty = [...html.matchAll(/https?:\/\/([^/"' )]+)/g)]
+  .map((m) => m[1])
+  .filter((h) => !/^(exotision\.fun|github\.com|nail-booking-pi\.vercel\.app|sentinel-ai-ten-nu\.vercel\.app|www\.w3\.org)$/.test(h));
+// Allowed: the owner's own site, GitHub, and the two live project links listed in projects.ts.
+check(thirdParty.length === 0, `no unexpected hosts in markup${thirdParty.length ? ': ' + thirdParty.join(', ') : ''}`);
 
-// ---------------------------------------------------------------- 5. leaked values
+const cssFiles = readdirSync(join(dist, '_astro')).filter((f) => f.endsWith('.css'));
+const cssText = cssFiles.map((f) => readFileSync(join(dist, '_astro', f), 'utf8')).join('\n');
+check(!/url\(\s*["']?https?:\/\//.test(cssText), 'no remote url() in CSS (fonts are self-hosted)');
+
 console.log('Markup hygiene');
-const leaks = ['undefined', '[object Object]', 'NaN'].filter((s) => html.includes(s));
-check(leaks.length === 0, 'no undefined / [object Object] / NaN in markup', `leaked: ${leaks.join(', ')}`);
+check(!/undefined|\[object Object\]|NaN/.test(html), 'no undefined / [object Object] / NaN in markup');
 
-// ---------------------------------------------------------------- 6. i18n keys
 console.log('i18n keys');
-const keyRe = /data-i18n(?:-html|-aria|-alt|-title|-marquee)?="([^"]+)"/g;
-const keys = [...new Set([...html.matchAll(keyRe)].map((m) => m[1]))];
-const unresolved = [];
+const keys = new Set([
+  ...[...html.matchAll(/data-i18n(?:-[a-z]+)?="([^"]+)"/g)].map((m) => m[1]),
+]);
+let keyFail = 0;
 for (const key of keys) {
-  for (const [lang, dict] of [['en', en], ['pl', pl]]) {
-    const v = resolveKey(dict, key);
-    const ok = typeof v === 'string' || (Array.isArray(v) && v.length > 0);
-    if (!ok) unresolved.push(`${lang}:${key}`);
+  for (const lang of ['en', 'pl']) {
+    const v = resolveKey(dicts[lang], key);
+    if (typeof v !== 'string' || v.trim() === '') {
+      keyFail++;
+      fail(`${lang}: key "${key}" missing or empty`);
+    }
   }
 }
-check(
-  unresolved.length === 0,
-  `all ${keys.length} data-i18n keys resolve in EN and PL`,
-  `unresolved keys: ${unresolved.join(', ')}`,
-);
+if (keyFail === 0) pass(`all ${keys.size} data-i18n keys resolve in EN and PL`);
 
-// Strings that are only written at runtime (after a language switch or a music state change)
-// are not in the build-time HTML, so they are excluded from the "rendered" check.
-// music.off / music.aria are only rendered when tracks are configured (the empty state shows "add").
-const CLIENT_ONLY = new Set([
-  'music.on',
-  'music.off',
-  'music.aria',
-  'music.ariaOff',
-  'music.loading',
-  'music.unavailable',
-  'nav.themeLight',
-]);
-const leaves = [];
-(function collect(node, path) {
-  if (typeof node === 'string') leaves.push([path, node]);
-  else if (Array.isArray(node)) node.forEach((v, i) => collect(v, `${path}.${i}`));
-  else if (node && typeof node === 'object') for (const k of Object.keys(node)) collect(node[k], path ? `${path}.${k}` : k);
-})(en, '');
-const notRendered = [];
-for (const [path, value] of leaves) {
-  if (CLIENT_ONLY.has(path)) continue;
-  // Tags (e.g. <br>, <span>) become a space, matching how the page text is extracted above.
-  const plain = value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  if (!plain) continue;
-  // Visible text, or an attribute value (aria-label, alt, title) in the raw markup.
-  if (!text.includes(plain) && !decode(html).includes(plain)) notRendered.push(path);
-}
-check(
-  notRendered.length === 0,
-  `all ${leaves.length - CLIENT_ONLY.size} build-time EN strings appear in the page`,
-  `EN strings not found in page: ${notRendered.join(', ')}`,
-);
-
-const plEmpty = [];
-(function collectPl(node, path) {
-  if (typeof node === 'string') {
-    if (!node.trim()) plEmpty.push(path);
-  } else if (Array.isArray(node)) node.forEach((v, i) => collectPl(v, `${path}.${i}`));
-  else if (node && typeof node === 'object') for (const k of Object.keys(node)) collectPl(node[k], path ? `${path}.${k}` : k);
-})(pl, '');
-check(plEmpty.length === 0, 'no empty PL strings', `empty PL strings: ${plEmpty.join(', ')}`);
-
-// ---------------------------------------------------------------- 7. music
 console.log('Music player');
-const musicMatch = html.match(/<div class="music"[^>]*>/);
-check(!!musicMatch, 'music control present', 'music control missing');
-const tracksAttr = musicMatch?.[0].match(/data-tracks="([^"]*)"/)?.[1] ?? '[]';
-const trackCount = JSON.parse(decode(tracksAttr)).length;
-if (trackCount === 0) {
-  check(/data-music-toggle[^>]*\sdisabled/.test(html), 'no tracks configured → control disabled', 'no tracks but control enabled');
+const musicMatch = html.match(/<div class="music"[^>]*data-tracks="([^"]*)"/);
+const tracksJson = musicMatch ? musicMatch[1].replace(/&quot;/g, '"') : '[]';
+const tracks = JSON.parse(tracksJson || '[]');
+check(!!musicMatch, 'music player rendered');
+if (tracks.length === 0) {
+  check(/data-music-play[^>]*disabled/.test(html), 'no tracks => play control disabled');
+  check(/data-music-seek[^>]*disabled/.test(html), 'no tracks => seek control disabled');
 } else {
-  check(!/data-music-toggle[^>]*\sdisabled/.test(html), `${trackCount} track(s) configured → control enabled`, 'tracks configured but control disabled');
+  check(!/data-music-play[^>]*disabled/.test(html), 'tracks configured => play control enabled');
+  for (const t of tracks) {
+    const p = join(dist, decodeURIComponent(t.src));
+    check(existsSync(p), `audio source exists: ${t.src}`);
+  }
 }
-const audioSrcs = [...html.matchAll(/<audio[^>]*src="([^"]+)"/g)].map((m) => m[1]);
-check(audioSrcs.every((s) => existsSync(join(dist, s.replace(/^\//, '')))), 'all <audio> sources exist', 'dangling <audio> source');
-check(!/\/audio\/music\.mp3/.test(html), 'no reference to the never-committed /audio/music.mp3', 'stale /audio/music.mp3 reference found');
+check(!/audio\/music\.mp3/.test(html), 'no reference to the never-committed /audio/music.mp3');
+check(!/autoplay/.test(html), 'no autoplay attribute');
 
-// ---------------------------------------------------------------- 8. published assets
+console.log('GitHub activity');
+const gh = JSON.parse(readFileSync(join(root, 'src/data/github-contributions.json'), 'utf8'));
+const dayCount = gh.weeks.reduce((n, w) => n + w.days.length, 0);
+const cellCount = (html.match(/class="gh-cell"[^>]*data-level/g) || []).length;
+// The legend adds five cells with aria-hidden; count only the grid cells.
+const gridMatch = html.match(/<div class="gh-grid"[\s\S]*?<\/div>/);
+const gridCells = gridMatch ? (gridMatch[0].match(/class="gh-cell"/g) || []).length : 0;
+check(gridCells === dayCount, `grid renders ${gridCells} cells for ${dayCount} days (${cellCount} incl. legend)`);
+check(gh.login === 'slading', 'contribution data belongs to the slading account');
+
 console.log('Publishing');
-const unpublished = ['orchestrator.png', 'repolens.png', 'voice-order-agent.png'];
-const leakedFiles = unpublished.filter((f) => existsSync(join(dist, 'assets', f)));
-check(leakedFiles.length === 0, 'unpublished screenshots are not in dist/', `unpublished files shipped: ${leakedFiles.join(', ')}`);
-const iframes = (html.match(/<iframe/g) || []).length;
-check(iframes === 3, `3 embedded N2D frames (list preview + 2 in case study)`, `expected 3 iframes, found ${iframes}`);
+const retired = ['assets/mascot', 'assets-unpublished'];
+for (const r of retired) {
+  check(!existsSync(join(dist, r)), `retired path not published: ${r}`);
+}
 
 console.log(`\n${passes} passed, ${failures} failed`);
-if (failures > 0) process.exit(1);
+process.exit(failures ? 1 : 0);

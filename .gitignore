@@ -15,3 +15,6 @@ npm-debug.log*
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+
+# local design review captures (not part of the site)
+design-review/

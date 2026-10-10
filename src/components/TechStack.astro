@@ -1,0 +1,56 @@
+---
+import { t } from '../i18n';
+import { stack } from '../data/stack';
+import {
+  siJavascript,
+  siTypescript,
+  siPython,
+  siFastapi,
+  siPydantic,
+  siSupabase,
+  siVercel,
+  siDocker,
+  siSolana,
+} from 'simple-icons';
+
+/** Icon exports, keyed by the name used in src/data/stack.ts. Only listed icons are bundled. */
+const icons: Record<string, { path: string }> = {
+  siJavascript,
+  siTypescript,
+  siPython,
+  siFastapi,
+  siPydantic,
+  siSupabase,
+  siVercel,
+  siDocker,
+  siSolana,
+};
+---
+
+<section id="stack" class="section reveal" aria-labelledby="stack-heading">
+  <div class="section-head">
+    <div>
+      <p class="kicker" data-i18n="tech.kicker">{t('tech.kicker')}</p>
+      <h2 id="stack-heading" class="section-title" data-i18n="tech.heading">{t('tech.heading')}</h2>
+    </div>
+    <p class="muted" style="font-size:13px; max-width:34ch; text-align:right" data-i18n="tech.note">{t('tech.note')}</p>
+  </div>
+
+  <ul class="tech-grid" style="list-style:none; margin:0; padding:0">
+    {stack.map((item) => {
+      const icon = item.icon ? icons[item.icon] : undefined;
+      return (
+        <li class="tech-tile">
+          <span class="tech-icon" aria-hidden="true">
+            {icon ? (
+              <svg viewBox="0 0 24 24"><path d={icon.path} /></svg>
+            ) : (
+              <span class="tech-icon-text">{item.label.slice(0, 2).toUpperCase()}</span>
+            )}
+          </span>
+          {item.label}
+        </li>
+      );
+    })}
+  </ul>
+</section>

@@ -1,4 +1,4 @@
-import { DEFAULT_LANG, isLang, marqueeLine, messages, type Lang, STORAGE, tryLookup } from '../i18n';
+import { DEFAULT_LANG, isLang, messages, type Lang, STORAGE, tryLookup } from '../i18n';
 
 export const LANGUAGE_EVENT = 'portfolio:languagechange';
 
@@ -10,11 +10,15 @@ export function getLang(): Lang {
 
 function readStored(): Lang | null {
   try {
-    const v = localStorage.getItem(STORAGE.lang) ?? localStorage.getItem(STORAGE.legacyLang);
+    const v = localStorage.getItem(STORAGE.lang);
     return isLang(v) ? v : null;
   } catch {
     return null;
   }
+}
+
+function fill(text: string, el: HTMLElement): string {
+  return text.replace(/\{(\w+)\}/g, (_, key: string) => el.dataset[key] ?? '');
 }
 
 function setMeta(attr: 'name' | 'property', key: string, value: string) {
@@ -33,42 +37,26 @@ function applyText(lang: Lang) {
   setMeta('property', 'og:description', dict.meta.description);
 
   document.querySelectorAll<HTMLElement>('[data-i18n]').forEach((el) => {
-    el.textContent = tryLookup(lang, el.dataset.i18n ?? '');
+    // Placeholders such as {total} are filled from data-* attributes on the element.
+    el.textContent = fill(tryLookup(lang, el.dataset.i18n ?? ''), el);
   });
-
-  document.querySelectorAll<HTMLElement>('[data-i18n-html]').forEach((el) => {
-    el.innerHTML = tryLookup(lang, el.dataset.i18nHtml ?? '');
-  });
-
   document.querySelectorAll<HTMLElement>('[data-i18n-aria]').forEach((el) => {
     el.setAttribute('aria-label', tryLookup(lang, el.dataset.i18nAria ?? ''));
   });
-
   document.querySelectorAll<HTMLElement>('[data-i18n-alt]').forEach((el) => {
     el.setAttribute('alt', tryLookup(lang, el.dataset.i18nAlt ?? ''));
   });
-
+  document.querySelectorAll<HTMLInputElement>('[data-i18n-placeholder]').forEach((el) => {
+    el.placeholder = tryLookup(lang, el.dataset.i18nPlaceholder ?? '');
+  });
   document.querySelectorAll<HTMLElement>('[data-i18n-title]').forEach((el) => {
     el.setAttribute('title', tryLookup(lang, el.dataset.i18nTitle ?? ''));
   });
-
-  // The marquee strip is built from a list of strings (the hero footer items).
-  document.querySelectorAll<HTMLElement>('[data-i18n-marquee]').forEach((el) => {
-    const items = listAt(lang, el.dataset.i18nMarquee ?? '');
-    el.textContent = marqueeLine(items);
-  });
-
   document.querySelectorAll<HTMLButtonElement>('[data-set-lang]').forEach((btn) => {
-    btn.setAttribute('aria-pressed', String(btn.dataset.setLang === lang));
+    const active = btn.dataset.setLang === lang;
+    btn.setAttribute('aria-pressed', String(active));
+    btn.classList.toggle('is-active', active);
   });
-}
-
-function listAt(lang: Lang, path: string): string[] {
-  let node: unknown = messages[lang];
-  for (const part of path.split('.')) {
-    node = node && typeof node === 'object' ? (node as Record<string, unknown>)[part] : undefined;
-  }
-  return Array.isArray(node) ? node.filter((v): v is string => typeof v === 'string') : [];
 }
 
 export function setLanguage(lang: Lang) {
@@ -76,13 +64,13 @@ export function setLanguage(lang: Lang) {
   try {
     localStorage.setItem(STORAGE.lang, lang);
   } catch {
-    /* storage unavailable (private mode): keep the choice for this page only */
+    /* storage unavailable: the choice applies to this page only */
   }
   document.dispatchEvent(new CustomEvent(LANGUAGE_EVENT, { detail: lang }));
 }
 
 export function initLanguage() {
-  // English is the default. A saved choice (or the legacy key from the old site) overrides it.
+  // English is the default. A saved choice overrides it.
   setLanguage(readStored() ?? DEFAULT_LANG);
 
   document.querySelectorAll<HTMLButtonElement>('[data-set-lang]').forEach((btn) => {

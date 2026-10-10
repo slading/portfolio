@@ -1,9 +1,9 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-// Canonical site URL taken from the README's live link. Update if the production domain changes.
+// Canonical site URL: the personal domain. Canonical and og:url are derived from this.
 export default defineConfig({
-  site: 'https://yauheni-buka.vercel.app',
+  site: 'https://exotision.fun',
   trailingSlash: 'ignore',
   vite: {
     server: {

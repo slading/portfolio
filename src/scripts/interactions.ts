@@ -1,13 +1,11 @@
 /**
- * Progressive enhancements. Everything here is optional: the page is fully
- * readable and usable without it. Motion-heavy effects are skipped when the
- * user prefers reduced motion, and pointer effects only run on fine pointers.
+ * Progressive enhancements: all optional, the page reads and works without them.
+ * Motion is skipped for users who prefer reduced motion.
  */
 const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-const finePointer = () => matchMedia('(pointer: fine)').matches;
 
 function initReveal() {
-  const items = document.querySelectorAll<HTMLElement>('.reveal, .reveal-fade');
+  const items = document.querySelectorAll<HTMLElement>('.reveal');
   if (reduceMotion() || !('IntersectionObserver' in window)) {
     items.forEach((el) => el.classList.add('show'));
     return;
@@ -20,98 +18,44 @@ function initReveal() {
           io.unobserve(entry.target);
         }
       }),
-    { threshold: 0.12 },
+    { threshold: 0.08 },
   );
   items.forEach((el) => io.observe(el));
 }
 
-function initCursor() {
-  const cursor = document.querySelector<HTMLElement>('.cursor');
-  if (!cursor) return;
-  document.documentElement.classList.add('cursor-enabled');
-
-  addEventListener(
-    'mousemove',
-    (e) => {
-      cursor.style.left = `${e.clientX}px`;
-      cursor.style.top = `${e.clientY}px`;
-      // Floating project previews follow the pointer while their row is hovered.
-      document.querySelectorAll<HTMLElement>('.work-row').forEach((row) => {
-        if (!row.matches(':hover')) return;
-        const preview = row.querySelector<HTMLElement>('.work-preview');
-        if (preview) {
-          preview.style.left = `${e.clientX}px`;
-          preview.style.top = `${e.clientY}px`;
-        }
-      });
-    },
-    { passive: true },
-  );
-
-  document.querySelectorAll<HTMLElement>('a, button, .work-row').forEach((el) => {
-    el.addEventListener('mouseenter', () => {
-      cursor.classList.add('big');
-      cursor.dataset.label = el.dataset.cursorLabel ?? '';
+/** Close the "More" menu on outside click or Escape. */
+function initMoreMenu() {
+  const menus = document.querySelectorAll<HTMLDetailsElement>('details[data-menu]');
+  document.addEventListener('click', (e) => {
+    menus.forEach((m) => {
+      if (m.open && !m.contains(e.target as Node)) m.open = false;
     });
-    el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') menus.forEach((m) => (m.open = false));
   });
 }
 
-function initHeroParallax() {
-  const hero = document.querySelector<HTMLElement>('.hero');
-  if (!hero) return;
-  const targets = hero.querySelectorAll<HTMLElement>('[data-depth]');
-  hero.addEventListener(
-    'mousemove',
-    (e) => {
-      const x = e.clientX / innerWidth - 0.5;
-      const y = e.clientY / innerHeight - 0.5;
-      targets.forEach((el) => {
-        const depth = Number(el.dataset.depth ?? 0);
-        el.style.transform = `translate3d(${x * depth * 65}px, ${y * depth * 45}px, 0)`;
-      });
-    },
-    { passive: true },
-  );
-}
-
-function initMascotTilt() {
-  const cell = document.querySelector<HTMLElement>('[data-tilt]');
-  if (!cell) return;
-  cell.addEventListener('mousemove', (e) => {
-    const r = cell.getBoundingClientRect();
-    const x = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width / 2)));
-    const y = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height / 2)));
-    cell.style.transform = `translate(${x * 3}px, ${y * 2}px)`;
+/** Warsaw local time, refreshed every 30 s. The server renders a placeholder. */
+function initWarsawClock() {
+  const els = document.querySelectorAll<HTMLElement>('[data-warsaw-time]');
+  if (els.length === 0) return;
+  const fmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Warsaw',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
   });
-  cell.addEventListener('mouseleave', () => {
-    cell.style.transform = '';
-  });
-}
-
-/** N2D stage: the two frames drift vertically as the section scrolls past. */
-function initN2DStage() {
-  const stage = document.querySelector<HTMLElement>('[data-parallax-stage]');
-  if (!stage) return;
-  const frames = stage.querySelectorAll<HTMLElement>('[data-parallax]');
-  const update = () => {
-    const r = stage.getBoundingClientRect();
-    const p = (innerHeight / 2 - r.top) / Math.max(innerHeight, r.height);
-    frames.forEach((frame) => {
-      frame.style.transform = `translateY(${p * Number(frame.dataset.parallax ?? 0)}px)`;
-    });
+  const tick = () => {
+    const text = fmt.format(new Date());
+    els.forEach((el) => (el.textContent = text));
   };
-  addEventListener('scroll', update, { passive: true });
-  update();
+  tick();
+  window.setInterval(tick, 30_000);
 }
 
 export function initInteractions() {
   initReveal();
-  if (reduceMotion()) return;
-  initN2DStage();
-  if (finePointer()) {
-    initCursor();
-    initHeroParallax();
-    initMascotTilt();
-  }
+  initMoreMenu();
+  initWarsawClock();
 }

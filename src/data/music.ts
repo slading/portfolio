@@ -1,28 +1,27 @@
 /**
  * Music player configuration.
  *
- * The player is wired up but ships with NO tracks: the original site pointed at
- * /audio/music.mp3, which was never committed. To enable playback:
- *   1. Put a file you have the rights to use under public/audio/.
- *   2. Add an entry below. `src` is a site-root path.
+ * Ships with NO tracks. Add only audio you have the rights to use.
+ *   1. Put the audio file under public/audio/ (and optional cover art under public/audio/covers/).
+ *   2. Add an entry to `tracks` below. Paths are site-root paths.
  *
- * Browsers only allow audio to start after a user gesture, so the player never
- * autoplays. Audio is not preloaded until the first play press.
+ * Playback starts only after a visitor presses play. Nothing autoplays, and audio is not
+ * preloaded until the first press.
  */
 export interface Track {
   id: string;
   title: string;
+  artist: string;
   src: string;
+  /** Optional square cover art. When omitted, a neutral placeholder is shown. */
+  cover?: string;
 }
 
 export const tracks: Track[] = [];
 
 export const musicSettings = {
-  /** Volume 0–1. The original site used 0.3. */
+  /** Volume 0–1. */
   volume: 0.3,
-  /**
-   * A single track loops. With several tracks, playback advances to the next
-   * one when a track ends and wraps around at the end of the list.
-   */
+  /** A single track loops. With several tracks, playback advances and wraps around. */
   loopTrack: true,
 } as const;

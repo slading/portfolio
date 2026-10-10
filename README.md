@@ -1,25 +1,27 @@
-# Żenia Buka — Portfolio
+# Yauheni Buka — Portfolio
 
-Personal portfolio: automation work, engineering case studies, and a grid-based layout with light/dark themes and English/Polish copy.
+Personal portfolio: AI-native software and product engineering. Light and dark themes on a grid background, English (default) and Polish copy.
 
-**Live (current production, unchanged by this branch):** https://yauheni-buka.vercel.app/
+**Canonical site:** https://exotision.fun (canonical and Open Graph URLs). The existing production deployment is still at https://yauheni-buka.vercel.app/; this branch does not change DNS or deploy.
 
 ## Stack
 
 - [Astro](https://astro.build) 7 (static output) + TypeScript (strict)
-- Plain CSS with design tokens, 12-column grid
-- Self-hosted fonts via [`@fontsource`](https://fontsource.org) (Space Grotesk, DM Mono). No third-party font requests.
-- Small client scripts for language, theme, interactions and the music player. Everything is optional and the page reads fine without JS.
+- Plain CSS with design tokens. Narrow centred column (820px max) with thin borders.
+- Self-hosted Inter Variable via `@fontsource-variable/inter`. No third-party font requests.
+- Brand icons from `simple-icons` (named imports only, so unused icons are not bundled).
+- Small client scripts for language, theme, search, the music player and optional interactions. The page reads fine without JS.
 
 ## Commands
 
 ```bash
 npm install
-npm run dev      # dev server on 0.0.0.0:4321
-npm run check    # astro check (types)
-npm run build    # static build to dist/
-npm run preview  # serve dist/ on 0.0.0.0:4321
-npm run verify   # check + build + dist checks (links, anchors, i18n keys, no third-party hosts)
+npm run dev          # dev server on 0.0.0.0:4321
+npm run check        # astro check (types)
+npm run build        # static build to dist/
+npm run preview      # serve dist/ on 0.0.0.0:4321
+npm run fetch:github # refresh src/data/github-contributions.json (needs an authenticated gh CLI)
+npm run verify       # check + build + dist checks
 ```
 
 ## Structure
@@ -27,41 +29,58 @@ npm run verify   # check + build + dist checks (links, anchors, i18n keys, no th
 ```
 src/
   i18n/          en.ts (default), pl.ts (typed to match en), index.ts (lookup, storage keys)
-  data/          projects.ts (links, asset paths, email), music.ts (track list)
-  layouts/       Base.astro (head, meta, theme-before-paint script, cursor, theme wipe)
-  components/    Header, Hero, Intro, Process, Works, CaseStudy, Contact, Footer, MusicPlayer
-  pages/         index.astro (page composition)
-  scripts/       app.ts (entry), language.ts, theme.ts, interactions.ts, music.ts
+  data/          projects.ts (featured/additional projects, links, email), stack.ts (tech tiles),
+                 music.ts (tracks; ships empty), github-contributions.json (generated snapshot)
+  layouts/       Base.astro (head, theme-before-paint script, column, search dialog)
+  components/    Nav, Hero, MusicPlayer, TechStack, Approach, Projects, GitHubActivity,
+                 Footer, SearchDialog
+  pages/         index.astro (homepage composition)
+  scripts/       app.ts (entry), language.ts, theme.ts, search.ts, music.ts, interactions.ts
   styles/        global.css (tokens, grid, components, responsive, reduced motion)
 public/
-  assets/        N2D embed (static HTML/CSS/JS), sentinel screenshot, mascot
+  assets/        N2D demo (static HTML/CSS/JS), SentinelAI screenshot
   favicon.svg
 assets-unpublished/   images kept in the repo but not deployed (see its README)
-scripts/verify-dist.mjs
+scripts/
+  fetch-github.mjs   pulls the 12-month contribution calendar for GITHUB_LOGIN (default slading)
+  verify-dist.mjs    post-build checks
 ```
 
 ## Content
 
-- **Copy** lives only in `src/i18n/en.ts` and `src/i18n/pl.ts`. Keys match the original site's wording. Add a key to both files; TypeScript fails the build if they drift.
-- **Projects** (links, screenshots) are in `src/data/projects.ts`. Case-study layout is in `src/components/CaseStudy.astro`.
-- Do not add achievements, metrics, or experience that the owner has not verified.
+- **Copy** lives only in `src/i18n/en.ts` and `src/i18n/pl.ts`. Add a key to both files; TypeScript fails the build if they drift.
+- **Projects** are in `src/data/projects.ts`. Each card shows its status (Production / Prototype / Technical proof), stack badges, links, and an in-page case study (the expandable "Case study" panel).
+- **Owner review needed:** the hero introduction, the three approach items, and the RFQ project copy (Project 04) were written for this redesign. Confirm the wording before publishing. Text that came from the verified previous site is unchanged.
+- Do not add achievements, metrics, employers, or dates that the owner has not verified.
+
+## GitHub activity
+
+`src/data/github-contributions.json` is a committed snapshot of the real `slading` contribution calendar. The build does not call GitHub. To refresh it locally:
+
+```bash
+GITHUB_LOGIN=slading npm run fetch:github
+```
+
+If the fetch fails, the script exits with an error and leaves the existing file untouched.
 
 ## Language and theme
 
-- Default language is **English**. Visitors can switch to Polish with the PL/EN control. The choice is stored in `localStorage` (`portfolio-language`), and the legacy key `zenia-language` is read as a fallback.
-- Theme follows the system preference until the visitor toggles it. The choice is stored as `portfolio-theme`. Legacy key `zenia-theme` is read as a fallback.
+- Default language is **English**. Visitors can switch to Polish with the EN/PL control in the footer. The choice is stored in `localStorage` (`portfolio-language`).
+- Theme follows the system preference until the visitor toggles it. The choice is stored as `portfolio-theme`.
 
 ## Music player
 
-The player is wired up but **ships with no tracks**, because the original site pointed at `/audio/music.mp3`, which was never committed. The control shows a disabled "ADD AUDIO FILE" state until a track is added.
+The player uses a real `<audio>` element and **ships with no tracks**. Nothing autoplays, and audio is not loaded until the visitor presses play. Only add audio you have the rights to use.
 
 To enable it:
-1. Add an audio file you have the rights to use under `public/audio/`.
-2. Add an entry to `tracks` in `src/data/music.ts`, for example `{ id: 'main', title: 'Track title', src: '/audio/main.mp3' }`.
+1. Put the audio file under `public/audio/` (and optional cover art under `public/audio/covers/`).
+2. Add an entry to `tracks` in `src/data/music.ts`, e.g. `{ id: 'main', title: 'Track title', artist: 'Artist', src: '/audio/main.mp3' }`.
 
-Playback never autoplays and nothing is preloaded until the first press. Playback does not persist across page navigations yet; this site is a single page today.
+## Pages not yet built
+
+Nav → More lists **Resume** and **Favourite Movies**. Both are shown as "soon" and are not linked until those pages exist.
 
 ## Notes
 
-- The N2D case study embeds a static, local copy of the N2D interface. Its own header describes it as a demo prototype with local data. The case-study caption says so; see the audit notes before changing that wording.
+- The N2D project embeds a static, local copy of the N2D interface, labelled as a demo.
 - Deployment: Astro is detected automatically by Vercel. This branch has not been deployed.
