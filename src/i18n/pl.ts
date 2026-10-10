@@ -152,7 +152,7 @@ export const pl: Messages = {
       rfq: {
         name: 'Project 04 — AI RFQ Operations Agent',
         summary:
-          'Prototyp inżynierski do przetwarzania przychodzących zapytań ofertowych (RFQ). Skupiony na deterministycznej walidacji, uporządkowanych procesach i przeglądzie przez człowieka, z ekstrakcją danych wspomaganą przez AI zaplanowaną na przyszły rozwój.',
+          'Prototyp inżynierski do przetwarzania przychodzących zapytań ofertowych (RFQ). Zrealizowano: deterministyczne rozpoznawanie odniesień klienta do katalogu, reguły cen, zapasów, dostaw i rabatów, obliczanie ofert, rejestr blokad oraz sprawdzenie kwalifikacji oferty do przeglądu przez człowieka, zapisywane w SQLite z niezmiennymi zapisami audytowymi. Ekstrakcja danych wspomagana przez AI oraz krok zatwierdzenia przez człowieka są zaplanowane na przyszły rozwój.',
         facts: [],
       },
       solana: {
