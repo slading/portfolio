@@ -18,3 +18,9 @@ npm-debug.log*
 
 # local design review captures (not part of the site)
 design-review/
+
+# Commercial audio is not published until distribution rights are confirmed.
+# The owner copy is held outside the repository; see README, "Music".
+public/music/*.mp3
+public/music/*.m4a
+public/music/*.ogg
