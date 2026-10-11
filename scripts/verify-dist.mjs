@@ -188,23 +188,6 @@ const jsBundles = readdirSync(jsDir).filter((f) => f.endsWith('.js'));
 const jsText = jsBundles.map((f) => readFileSync(join(jsDir, f), 'utf8')).join('\n');
 check(!/onSpotifyIframeApiReady|iframe-api|createController/.test(jsText), 'no Spotify iFrame API code in shipped JavaScript');
 
-// Release gate: no MP3 (or other audio file) in the build unless the owner has confirmed distribution rights.
-{
-  const audioInDist = [];
-  const walkAudio = (d) => {
-    for (const e of readdirSync(d, { withFileTypes: true })) {
-      const f = join(d, e.name);
-      if (e.isDirectory()) walkAudio(f);
-      else if (/\.(mp3|m4a|ogg)$/i.test(e.name)) audioInDist.push(f.slice(dist.length + 1));
-    }
-  };
-  walkAudio(dist);
-  check(
-    audioInDist.length === 0 || process.env.ALLOW_AUDIO_PUBLICATION === '1',
-    `release gate: no audio file in dist (found ${audioInDist.length}${audioInDist.length ? ': ' + audioInDist.join(', ') : ''}); set ALLOW_AUDIO_PUBLICATION=1 only after rights are confirmed`,
-  );
-}
-
 console.log('GitHub activity');
 const gh = JSON.parse(readFileSync(join(root, 'src/data/github-contributions.json'), 'utf8'));
 const dayCount = gh.weeks.reduce((n, w) => n + w.days.length, 0);

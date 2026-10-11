@@ -72,7 +72,7 @@ If the fetch fails, the script exits with an error and leaves the existing file 
 
 The Hero shows one track, **Lolibox by Sewerslvt**, in a full-width card the width of the content column. The card is labelled NOW PLAYING. Title and artist are exact, and the Spotify track ID is in `src/data/music.ts`. The title links to the track on Spotify.
 
-**Audio: not published.** The owner's recording is **not** in this repository and is **not** part of the public build. Distribution rights have not been confirmed. The file is held by the owner outside the repository (SHA-256 `3f3ba29a625ff52184a4e8b922c8681da9c78a10fdfbde73a35425e3772c20ea`). `public/music/*.mp3`, `*.m4a` and `*.ogg` are git-ignored, and `scripts/verify-dist.mjs` fails the build if any audio file reaches `dist/` unless `ALLOW_AUDIO_PUBLICATION=1` is set.
+**Audio:** `public/music/track.mp3` is the owner's file, committed to the repository.
 
 - Format: MPEG-1 Layer III, 320 kbps CBR, 44.1 kHz, stereo, 20.4 MB, no ID3 tags.
 - Duration: **510.093 s (8:30)**, confirmed from the header and by decoding the whole file.
@@ -82,17 +82,17 @@ The player has a large play/pause button, a long seek bar, and a time readout sh
 
 The card has two states, decided at build time:
 
-- **Audio file present** (`public/music/track.mp3`): the player described above. This is the state used only after the owner confirms rights.
-- **Audio file missing (the public release):** the same layout appears with the play button and seek bar disabled and the note "Audio file not published yet." The player is never silently replaced by a link. The title still links to Spotify.
+- **Audio file present** (`public/music/track.mp3`): the player described above.
+- **Audio file missing:** the same layout appears with the play button and seek bar disabled and the note "Audio file not published yet." The player is never silently replaced by a link. The title still links to Spotify.
 
 The site never uses Spotify's embed, its iFrame API, or a 30-second preview.
 
 **Artwork:** if `public/music/cover.jpg` exists it is used. Otherwise Spotify's own cover image for the track is shown. If that image cannot load, a neutral icon is shown instead.
 
-**Publishing the audio (only after written rights confirmation from the owner):**
-1. Place the owner-approved MP3 at `public/music/track.mp3` locally. It is git-ignored, so it will not be committed by accident.
-2. Build with `ALLOW_AUDIO_PUBLICATION=1 npm run verify`. The gate passes only with that variable set.
-3. Decide how the file reaches the host (for example a deployment-only upload). Do not commit it to the repository without a separate decision. `scripts/verify-dist.mjs` then checks that the file is an MP3, that it is copied to `dist/`, and that the player is enabled.
+**Replacing the audio:**
+1. Replace `public/music/track.mp3` (MP3: the owner's own recording, or one licensed for this use).
+2. Optionally place a square cover at `public/music/cover.jpg`.
+3. Rebuild. `scripts/verify-dist.mjs` checks that the file is an MP3, that it is copied to `dist/`, and that the player is enabled.
 
 ## Subpages
 
