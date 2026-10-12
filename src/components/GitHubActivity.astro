@@ -1,0 +1,45 @@
+---
+import { t } from '../i18n';
+import { githubProfile } from '../data/projects';
+import data from '../data/github-contributions.json';
+
+const weeks = data.weeks;
+const snapshot = data.fetchedAt.slice(0, 10);
+---
+
+<section id="github" class="section reveal" aria-labelledby="github-heading">
+  <div class="section-head">
+    <div>
+      <p class="kicker" data-i18n="github.kicker">{t('github.kicker')}</p>
+      <h2 id="github-heading" class="section-title" data-i18n="github.heading">{t('github.heading')}</h2>
+    </div>
+    <a class="social" href={githubProfile} target="_blank" rel="noopener noreferrer" data-i18n-title="ui.opensRepo" style="padding:0 6px">
+      <span data-i18n="github.handle">{t('github.handle')}</span> <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+
+  <div class="gh-head">
+    <span data-i18n="github.caption" data-total={data.total}>{t('github.caption').replace('{total}', String(data.total))}</span>
+    <span class="muted" data-i18n="github.snapshot" data-date={snapshot}>{t('github.snapshot').replace('{date}', snapshot)}</span>
+  </div>
+
+  <div class="gh-scroll" tabindex="0" role="region" data-i18n-aria="github.scrollLabel" aria-label={t('github.scrollLabel')}>
+    <div class="gh-grid" role="img" aria-label={t('github.caption').replace('{total}', String(data.total))}>
+      {weeks.flatMap((week) =>
+        week.days.map((day) => (
+          <span class="gh-cell" data-level={day.level} title={`${day.date}: ${day.count}`}></span>
+        )),
+      )}
+    </div>
+  </div>
+
+  <div class="gh-legend" aria-hidden="true">
+    <span data-i18n="github.less">{t('github.less')}</span>
+    <span class="gh-cell" data-level="0"></span>
+    <span class="gh-cell" data-level="1"></span>
+    <span class="gh-cell" data-level="2"></span>
+    <span class="gh-cell" data-level="3"></span>
+    <span class="gh-cell" data-level="4"></span>
+    <span data-i18n="github.more">{t('github.more')}</span>
+  </div>
+</section>

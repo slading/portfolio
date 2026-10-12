@@ -1,0 +1,24 @@
+---
+import { t, messages, DEFAULT_LANG } from '../i18n';
+
+const items = messages[DEFAULT_LANG].approach.items;
+---
+
+<section id="approach" class="section reveal" aria-labelledby="approach-heading">
+  <div class="section-head">
+    <div>
+      <p class="kicker" data-i18n="approach.kicker">{t('approach.kicker')}</p>
+      <h2 id="approach-heading" class="section-title" data-i18n="approach.heading">{t('approach.heading')}</h2>
+    </div>
+  </div>
+
+  <div class="approach-grid">
+    {items.map((_item, i) => (
+      <article class="approach-item">
+        <span class="approach-num">0{i + 1}</span>
+        <h3 class="approach-title" data-i18n={`approach.items.${i}.title`}>{t(`approach.items.${i}.title`)}</h3>
+        <p class="approach-text" data-i18n={`approach.items.${i}.text`}>{t(`approach.items.${i}.text`)}</p>
+      </article>
+    ))}
+  </div>
+</section>

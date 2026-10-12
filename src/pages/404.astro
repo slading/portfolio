@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import { t } from '../i18n';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<Base titleKey="meta.notFoundTitle" noindex>
+  <section class="page-head reveal show" aria-labelledby="not-found-title">
+    <p class="kicker" aria-hidden="true">404</p>
+    <h1 id="not-found-title" class="page-title" data-i18n="pages.notFound.title">{t('pages.notFound.title')}</h1>
+    <p class="page-intro" data-i18n="pages.notFound.intro">{t('pages.notFound.intro')}</p>
+    <div class="not-found-actions">
+      <a class="btn btn-primary" href={base} data-i18n="pages.notFound.home">{t('pages.notFound.home')}</a>
+      <a class="btn" href={`${base}resume/`} data-i18n="pages.notFound.resume">{t('pages.notFound.resume')}</a>
+      <a class="btn" href={`${base}favourites/`} data-i18n="pages.notFound.favourites">{t('pages.notFound.favourites')}</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .not-found-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+  }
+</style>

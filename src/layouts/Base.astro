@@ -1,0 +1,80 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import SearchDialog from '../components/SearchDialog.astro';
+import { DEFAULT_LANG, messages, t } from '../i18n';
+
+/** Dictionary key of this page's document title. The client script swaps it on language change. */
+type TitleKey = 'meta.title' | 'meta.resumeTitle' | 'meta.favouritesTitle' | 'meta.notFoundTitle';
+
+interface Props {
+  titleKey?: TitleKey;
+  description?: string;
+  /** Set on pages that must stay out of search results (the 404 page). */
+  noindex?: boolean;
+}
+
+const dict = messages[DEFAULT_LANG];
+const titleKey: TitleKey = Astro.props.titleKey ?? 'meta.title';
+const title = t(titleKey);
+const description = Astro.props.description ?? dict.meta.description;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const shareImage = new URL('og/exotision-share.png', Astro.site);
+const noindex = Astro.props.noindex ?? false;
+---
+
+<!doctype html>
+<html lang={DEFAULT_LANG} data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title data-i18n-doc={titleKey}>{title}</title>
+    <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Exotision" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={shareImage.href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Exotision: Yauheni Buka, AI-native Software / Product Engineer" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={shareImage.href} />
+    <meta name="theme-color" content="#fbfbfa" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Runs before first paint: applies the saved (or system) theme to avoid a flash. -->
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        var t = null;
+        try {
+          t = localStorage.getItem('portfolio-theme');
+        } catch (e) {}
+        if (t !== 'dark' && t !== 'light') {
+          t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        d.dataset.theme = t;
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#top" data-i18n="ui.skip">{dict.ui.skip}</a>
+    <div class="column">
+      <Nav />
+      <main id="top">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+    <SearchDialog />
+    <script>
+      import '../scripts/app';
+    </script>
+  </body>
+</html>

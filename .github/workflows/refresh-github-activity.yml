@@ -2,14 +2,13 @@
 # "Contributions" section (src/components/GitHubActivity.astro renders
 # src/data/github-contributions.json at build time; there is no runtime fetch).
 #
-# Why this workflow lives on `main`:
-#   GitHub only runs scheduled workflows from the repository's DEFAULT branch
-#   (currently `main`), but the deployed Astro site — including
-#   scripts/fetch-github.mjs and src/data/github-contributions.json — lives on
-#   the deployment branch until PR #1 is merged. So this workflow checks out
-#   that branch, regenerates the snapshot, and pushes it back only when the
-#   contribution data actually changed. The push triggers the existing Vercel
-#   rebuild of exotision.fun.
+# How it works:
+#   GitHub runs scheduled workflows from the repository's default branch
+#   (`main`), where the Astro site, scripts/fetch-github.mjs, and
+#   src/data/github-contributions.json live. This workflow checks out `main`
+#   (or an optional branch input on manual dispatch), regenerates the snapshot,
+#   and pushes it back only when the contribution data actually changed. The
+#   push triggers the Vercel production rebuild of exotision.fun.
 #
 # Safety properties:
 #   - Uses only the built-in GITHUB_TOKEN (no PATs stored anywhere, nothing
@@ -17,11 +16,8 @@
 #   - scripts/fetch-github.mjs leaves the previous snapshot untouched on API
 #     failure; this workflow then commits nothing and the site keeps serving
 #     the last good data with its honest "Snapshot from {date}" label.
-#   - fetchedAt-only changes are ignored (-I below), so days without new
-#     contributions produce no commit, no deploy, and no history churn.
-#
-# After PR #1 is merged to main and production is deployed from main:
-#   change the checkout `ref` below to `main` (one line).
+#   - fetchedAt-only changes are ignored (-I below), so refetches without
+#     contribution changes produce no commit, no deploy, and no history churn.
 
 name: Refresh GitHub activity snapshot
 
@@ -54,9 +50,9 @@ jobs:
       - name: Check out the deployed branch
         uses: actions/checkout@v4
         with:
-          # Keep in sync with the TARGET_BRANCH message below. Until PR #1 is
-          # merged, this is the branch that serves exotision.fun.
-          ref: ${{ inputs.branch || 'arena/9c0e3599-portfolio' }}
+          # Production (exotision.fun) is deployed from main; manual dispatch
+          # can optionally override the target branch via inputs.branch.
+          ref: ${{ inputs.branch || 'main' }}
 
       - name: Verify snapshot tooling exists
         run: |

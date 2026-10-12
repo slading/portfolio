@@ -1,0 +1,62 @@
+---
+import { t } from '../i18n';
+
+const base = import.meta.env.BASE_URL;
+
+/**
+ * Each entry links into the site. Anchors on the homepage are prefixed with the base
+ * path so they work from every page. Labels are translated via data-i18n.
+ */
+const items = [
+  { key: 'home', href: base },
+  { key: 'about', href: `${base}#about` },
+  { key: 'projects', href: `${base}#projects` },
+  { key: 'n2d', href: `${base}#project-n2d` },
+  { key: 'sentinel', href: `${base}#project-sentinel` },
+  { key: 'rfq', href: `${base}#project-rfq` },
+  { key: 'solana', href: `${base}#project-solana` },
+  { key: 'github', href: `${base}#github` },
+  { key: 'music', href: `${base}#music` },
+  { key: 'resume', href: `${base}resume/` },
+  { key: 'favourites', href: `${base}favourites/` },
+  { key: 'contact', href: 'mailto:yauhenibuka@gmail.com' },
+];
+---
+
+<dialog id="search-dialog" class="search-dialog" aria-labelledby="search-title">
+  <h2 id="search-title" class="visually-hidden" data-i18n="ui.searchTitle">{t('ui.searchTitle')}</h2>
+  <div class="search-box">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="color: var(--muted)"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input
+      id="search-input"
+      type="search"
+      autocomplete="off"
+      role="combobox"
+      aria-expanded="true"
+      aria-controls="search-list"
+      aria-autocomplete="list"
+      data-i18n-aria="ui.searchPlaceholder"
+      placeholder={t('ui.searchPlaceholder')}
+      data-i18n-placeholder="ui.searchPlaceholder"
+    />
+    <button type="button" class="btn btn-sm" data-search-close data-i18n="ui.close">{t('ui.close')}</button>
+  </div>
+  <ul id="search-list" class="search-list" role="listbox">
+    {items.map((item, i) => (
+      <li id={`search-opt-${i}`} role="option" data-search-item>
+        <a href={item.href}>
+          <span data-i18n={`search.items.${item.key}`}>{t(`search.items.${item.key}`)}</span>
+          {item.href.startsWith('mailto:') ? (
+            <span class="muted" style="font-size:12px" data-i18n="search.emailHint">{t('search.emailHint')}</span>
+          ) : (
+            <span class="muted" style="font-size:12px">{item.href.replace(base, '/')}</span>
+          )}
+        </a>
+      </li>
+    ))}
+  </ul>
+  <p id="search-empty" class="search-empty" hidden data-i18n="ui.searchEmpty">{t('ui.searchEmpty')}</p>
+  <div class="search-foot">
+    <span data-i18n="ui.searchHint">{t('ui.searchHint')}</span>
+  </div>
+</dialog>
