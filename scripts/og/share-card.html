@@ -1,0 +1,79 @@
+<!doctype html>
+<!--
+  Source for public/og/exotision-share.png (1200 x 630). Render it with any headless
+  browser at a 1200 x 630 viewport, for example:
+    chromium --headless --window-size=1200,630 --screenshot=public/og/exotision-share.png scripts/og/share-card.html
+  The E mark geometry matches src/components/BrandMark.astro and public/favicon.svg.
+  Colours follow the light theme tokens in src/styles/global.css.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Exotision share card</title>
+  <style>
+    @font-face {
+      font-family: 'Inter';
+      src: url('../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2');
+      font-weight: 100 900;
+    }
+    html, body { margin: 0; padding: 0; }
+    body {
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+      background: #fbfbfa;
+      background-image:
+        linear-gradient(to right, rgba(21, 22, 26, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(21, 22, 26, 0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+      color: #15161a;
+      font-family: 'Inter', system-ui, sans-serif;
+      position: relative;
+    }
+    .frame {
+      position: absolute;
+      inset: 56px;
+      border: 1px solid rgba(21, 22, 26, 0.14);
+      border-radius: 14px;
+      background: #ffffff;
+      padding: 64px 72px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .top { display: flex; align-items: center; gap: 22px; }
+    .mark { width: 72px; height: 72px; fill: #15161a; }
+    .mark .accent { fill: #2446c9; }
+    .site { font-size: 22px; font-weight: 600; letter-spacing: 0.02em; color: #15161a; }
+    h1 { margin: 0; font-size: 84px; line-height: 1.02; font-weight: 700; letter-spacing: -0.02em; }
+    .role { margin: 18px 0 0; font-size: 34px; font-weight: 500; color: #3d4048; }
+    .foot { display: flex; justify-content: space-between; align-items: center; font-size: 22px; color: #6b6f78; }
+    .foot .rule { flex: 1; height: 1px; background: rgba(21, 22, 26, 0.14); margin: 0 28px; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #2446c9; margin-right: 12px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="top">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="5" y="5" width="5" height="22" />
+        <path d="M5 5H24L20 10.5H10Z" />
+        <path d="M10 14H20L17 18H10Z" />
+        <path d="M5 27H24L20 21.5H10Z" />
+        <rect class="accent" x="23.5" y="14" width="3.5" height="4" />
+      </svg>
+      <span class="site">Exotision</span>
+    </div>
+    <div>
+      <h1>Yauheni Buka</h1>
+      <p class="role">AI-native Software / Product Engineer</p>
+    </div>
+    <div class="foot">
+      <span><span class="dot"></span>Warsaw, Poland</span>
+      <span class="rule"></span>
+      <span>exotision.fun</span>
+    </div>
+  </div>
+</body>
+</html>

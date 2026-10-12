@@ -1,0 +1,140 @@
+---
+import { t, messages, DEFAULT_LANG } from '../i18n';
+import { featured, additional, type Project } from '../data/projects';
+import { stack } from '../data/stack';
+
+const dict = messages[DEFAULT_LANG].projects;
+const label = (id: string) => stack.find((s) => s.id === id)?.label ?? id;
+const statusKey: Record<Project['status'], string> = {
+  production: 'statusProduction',
+  prototype: 'statusPrototype',
+  proof: 'statusProof',
+};
+const base = import.meta.env.BASE_URL;
+---
+
+<section id="projects" class="section reveal" aria-labelledby="projects-heading">
+  <div class="section-head">
+    <div>
+      <p class="kicker" data-i18n="projects.kicker">{t('projects.kicker')}</p>
+      <h2 id="projects-heading" class="section-title" data-i18n="projects.heading">{t('projects.heading')}</h2>
+    </div>
+  </div>
+
+  <div class="project-list">
+    {featured.map((p) => {
+      const item = dict.items[p.id];
+      return (
+        <article class="card" id={p.anchor}>
+          {(p.liveFrame || p.image) && (
+            <div class="card-media">
+              {p.liveFrame === 'n2d' ? (
+                <>
+                  <div class="browser-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+                  <iframe
+                    src={`${base}assets/n2d/customer.html`}
+                    title={`${item.name}: ${t('projects.previewLabel')}`}
+                    loading="lazy"
+                    tabindex="-1"
+                    style="padding-top:22px; box-sizing:border-box"
+                  ></iframe>
+                </>
+              ) : (
+                <img src={`${base}${p.image}`} alt={`${item.name}: screenshot`} loading="lazy" width="1280" height="720" />
+              )}
+            </div>
+          )}
+
+          <div class="card-body">
+            <div class="card-top">
+              <span class={`status status-${p.status}`} data-i18n={`projects.${(p.statusKey ?? statusKey[p.status])}`}>{t(`projects.${(p.statusKey ?? statusKey[p.status])}`)}</span>
+            </div>
+            <h3 class="card-name" data-i18n={`projects.items.${p.id}.name`}>{item.name}</h3>
+            <p class="card-summary" data-i18n={`projects.items.${p.id}.summary`}>{item.summary}</p>
+
+            {p.stack.length > 0 && (
+              <ul class="tags" style="list-style:none; margin:14px 0 0; padding:0">
+                {p.stack.map((id) => (
+                  <li class="tag">{label(id)}</li>
+                ))}
+              </ul>
+            )}
+
+            {(p.links.length > 0 || item.facts.length > 0) && (
+              <div class="card-links">
+                {p.links.map((link) => (
+                  <a
+                    class={`btn btn-sm ${link.label === 'live' ? 'btn-primary' : ''}`}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-i18n={link.label === 'live' ? 'projects.liveLink' : 'projects.githubLink'}
+                    data-i18n-title={link.label === 'live' ? 'ui.opensLive' : 'ui.opensRepo'}
+                  >
+                    {t(link.label === 'live' ? 'projects.liveLink' : 'projects.githubLink')}
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {item.facts.length > 0 && (
+              <details class="case">
+                <summary data-i18n="projects.caseStudy">{t('projects.caseStudy')}</summary>
+                <dl class="case-facts">
+                  {item.facts.map((fact, i) => (
+                    <div class="case-fact">
+                      <dt data-i18n={`projects.items.${p.id}.facts.${i}.label`}>{fact.label}</dt>
+                      <dd data-i18n={`projects.items.${p.id}.facts.${i}.text`}>{fact.text}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+            )}
+          </div>
+        </article>
+      );
+    })}
+  </div>
+
+  <h3 class="more-title" data-i18n="projects.moreHeading">{t('projects.moreHeading')}</h3>
+  <ul class="compact-list" style="list-style:none; margin:0; padding:0">
+    {additional.map((p) => {
+      const item = dict.items[p.id];
+      return (
+        <li class="compact-row" id={p.anchor}>
+          <div style="min-width:0">
+            <div class="compact-name" data-i18n={`projects.items.${p.id}.name`}>{item.name}</div>
+            <div class="compact-summary" data-i18n={`projects.items.${p.id}.summary`}>{item.summary}</div>
+            <div class="tags" style="margin-top:10px">
+              <span class={`status status-${p.status}`} data-i18n={`projects.${(p.statusKey ?? statusKey[p.status])}`}>{t(`projects.${(p.statusKey ?? statusKey[p.status])}`)}</span>
+              {p.stack.map((id) => (
+                <span class="tag">{label(id)}</span>
+              ))}
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end">
+            {p.links.map((link) => (
+              <a class="btn btn-sm" href={link.href} target="_blank" rel="noopener noreferrer" data-i18n="projects.githubLink" data-i18n-title="ui.opensRepo">
+                {t('projects.githubLink')} <span aria-hidden="true">↗</span>
+              </a>
+            ))}
+            {item.facts.length > 0 && (
+              <details class="case" style="margin-top:0">
+                <summary data-i18n="projects.caseStudy">{t('projects.caseStudy')}</summary>
+                <dl class="case-facts">
+                  {item.facts.map((fact, i) => (
+                    <div class="case-fact">
+                      <dt data-i18n={`projects.items.${p.id}.facts.${i}.label`}>{fact.label}</dt>
+                      <dd data-i18n={`projects.items.${p.id}.facts.${i}.text`}>{fact.text}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+            )}
+          </div>
+        </li>
+      );
+    })}
+  </ul>
+</section>

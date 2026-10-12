@@ -1,0 +1,22 @@
+---
+import { t } from '../i18n';
+import { contactEmail, githubProfile } from '../data/projects';
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="footer-row">
+    <div class="footer-links">
+      <a href={`mailto:${contactEmail}`} data-i18n="hero.emailCta">{t('hero.emailCta')}</a>
+      <a href={githubProfile} target="_blank" rel="noopener noreferrer" data-i18n-title="ui.opensRepo" data-i18n="hero.githubCta">{t('hero.githubCta')}</a>
+      <a href={import.meta.env.BASE_URL} data-i18n="nav.home">{t('nav.home')}</a>
+    </div>
+    <div class="lang-switch" role="group" data-i18n-aria="ui.langAria" aria-label={t('ui.langAria')}>
+      <button type="button" data-set-lang="en" aria-pressed="true" class="is-active">EN</button>
+      <button type="button" data-set-lang="pl" aria-pressed="false">PL</button>
+    </div>
+  </div>
+  <div class="footer-row" style="margin-top:14px">
+    <span>© {year} Yauheni Buka. <span data-i18n="ui.footerRights">{t('ui.footerRights')}</span></span>
+  </div>
+</footer>
