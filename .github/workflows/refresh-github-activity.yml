@@ -1,0 +1,104 @@
+# Refreshes the committed GitHub contribution snapshot that powers the
+# "Contributions" section (src/components/GitHubActivity.astro renders
+# src/data/github-contributions.json at build time; there is no runtime fetch).
+#
+# Why this workflow lives on `main`:
+#   GitHub only runs scheduled workflows from the repository's DEFAULT branch
+#   (currently `main`), but the deployed Astro site — including
+#   scripts/fetch-github.mjs and src/data/github-contributions.json — lives on
+#   the deployment branch until PR #1 is merged. So this workflow checks out
+#   that branch, regenerates the snapshot, and pushes it back only when the
+#   contribution data actually changed. The push triggers the existing Vercel
+#   rebuild of exotision.fun.
+#
+# Safety properties:
+#   - Uses only the built-in GITHUB_TOKEN (no PATs stored anywhere, nothing
+#     reaches the client bundle; the snapshot stays a committed JSON file).
+#   - scripts/fetch-github.mjs leaves the previous snapshot untouched on API
+#     failure; this workflow then commits nothing and the site keeps serving
+#     the last good data with its honest "Snapshot from {date}" label.
+#   - fetchedAt-only changes are ignored (-I below), so days without new
+#     contributions produce no commit, no deploy, and no history churn.
+#
+# After PR #1 is merged to main and production is deployed from main:
+#   change the checkout `ref` below to `main` (one line).
+
+name: Refresh GitHub activity snapshot
+
+on:
+  schedule:
+    # Daily at 06:15 UTC (08:15 Warsaw summer time). Off-the-hour to reduce
+    # GitHub scheduler congestion delays.
+    - cron: "15 6 * * *"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch holding the deployed Astro site (empty = default below)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+# Never let a manual run and a scheduled run fight over the same commit.
+concurrency:
+  group: refresh-github-snapshot
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Refresh contribution snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the deployed branch
+        uses: actions/checkout@v4
+        with:
+          # Keep in sync with the TARGET_BRANCH message below. Until PR #1 is
+          # merged, this is the branch that serves exotision.fun.
+          ref: ${{ inputs.branch || 'arena/9c0e3599-portfolio' }}
+
+      - name: Verify snapshot tooling exists
+        run: |
+          if [ ! -f scripts/fetch-github.mjs ]; then
+            echo "::error::scripts/fetch-github.mjs not found on $(git rev-parse --abbrev-ref HEAD). Update the checkout ref in this workflow."
+            exit 1
+          fi
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          # Matches the site's engines requirement (>=22.12). No npm install is
+          # needed: the fetch script only uses Node core modules and the `gh`
+          # CLI preinstalled on the runner.
+          node-version: 22
+
+      - name: Fetch latest contribution data
+        id: fetch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if node scripts/fetch-github.mjs; then
+            echo "status=ok" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::GitHub fetch failed — previous snapshot kept, nothing will be committed."
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit only if contribution data changed
+        if: steps.fetch.outputs.status == 'ok'
+        run: |
+          SNAPSHOT_FILE="src/data/github-contributions.json"
+          # -I ignores the fetchedAt line: a refetch with identical
+          # contributions must not create a commit or a redeploy.
+          if git diff --quiet -I '^ *"fetchedAt":' -- "$SNAPSHOT_FILE"; then
+            echo "Contribution data unchanged since last snapshot; keeping existing file."
+            git checkout -- "$SNAPSHOT_FILE"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$SNAPSHOT_FILE"
+          git commit -m "chore: refresh GitHub activity snapshot ($(date -u +%Y-%m-%d))"
+          git push
+          echo "Snapshot updated and pushed; the push triggers the Vercel rebuild."
