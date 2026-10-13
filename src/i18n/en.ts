@@ -12,9 +12,11 @@ export const en = {
     title: 'Yauheni Buka | AI-native Software / Product Engineer',
     resumeTitle: 'Resume | Yauheni Buka',
     favouritesTitle: 'Favourite Movies | Yauheni Buka',
+    blogTitle: 'Journal | Yauheni Buka',
     notFoundTitle: 'Page not found | Yauheni Buka',
     description:
       'AI-native software and product engineer. Booking systems, AI-assisted tools and engineering case studies.',
+    blogDescription: 'Personal notes on life, engineering, experiments, business and building in public.',
   },
 
   ui: {
@@ -46,6 +48,7 @@ export const en = {
     home: 'Home',
     about: 'About',
     projects: 'Projects',
+    blog: 'Journal',
     resume: 'Resume',
     movies: 'Favourite Movies',
   },
@@ -201,6 +204,14 @@ export const en = {
   },
 
   pages: {
+    blog: {
+      kicker: 'Field notes',
+      title: 'Journal',
+      intro: 'Thoughts on life, engineering, experiments, business and building in public. A place for the unfinished ideas, too.',
+      emptyTitle: 'Nothing here yet',
+      emptyText: 'No entries have been published yet. Check back soon.',
+      back: 'Back to the portfolio',
+    },
     notFound: {
       title: 'Page not found',
       intro: 'The page you are looking for does not exist or has moved.',
@@ -234,6 +245,7 @@ export const en = {
       home: 'Home',
       about: 'About',
       projects: 'Projects',
+      blog: 'Journal',
       n2d: 'N2D Nails',
       sentinel: 'SentinelAI',
       rfq: 'Project 04 — AI RFQ Operations Agent',

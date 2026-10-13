@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Post-build checks on dist/. Run via `npm run verify` (after `astro check` and `astro build`).
+ * Post-build checks on dist/client and Vercel routing. Run via `npm run verify`.
  *
  * Checks:
  *  - page metadata and lang
@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const dist = join(root, 'dist');
+const dist = join(root, 'dist/client');
 const indexPath = join(dist, 'index.html');
 
 let failures = 0;
@@ -35,10 +35,15 @@ const fail = (msg) => {
 const check = (ok, msg) => (ok ? pass(msg) : fail(msg));
 
 if (!existsSync(indexPath)) {
-  console.error('dist/index.html not found. Run `npm run build` first.');
+  console.error('dist/client/index.html not found. Run `npm run build` first.');
   process.exit(1);
 }
 const html = readFileSync(indexPath, 'utf8');
+const vercelRoutes = JSON.parse(readFileSync(join(root, '.vercel/output/config.json'), 'utf8')).routes;
+check(!existsSync(join(dist, 'blog/index.html')) && !existsSync(join(dist, 'admin/index.html')), 'blog and admin are not prerendered');
+for (const path of ['blog', 'admin']) {
+  check(vercelRoutes.some((route) => route.src === `^/${path}/?$` && route.dest === '_render'), `/${path} is routed to the Vercel function`);
+}
 
 /** Load a TS dictionary by transpiling it to CommonJS (no extra dependencies). */
 function loadDict(file) {
@@ -343,11 +348,12 @@ console.log('Phase 5B: SEO, social, 404, accessibility, N2D default');
   const sitemapIndex = read('sitemap-index.xml');
   check(sitemapIndex.includes('https://exotision.fun/sitemap-0.xml'), 'sitemap-index.xml: references sitemap-0.xml');
   const sitemap = read('sitemap-0.xml');
-  for (const url of ['https://exotision.fun/', 'https://exotision.fun/resume/', 'https://exotision.fun/favourites/']) {
+  for (const url of ['https://exotision.fun/', 'https://exotision.fun/resume/', 'https://exotision.fun/favourites/', 'https://exotision.fun/blog/']) {
     check(sitemap.includes(`<loc>${url}</loc>`), `sitemap lists ${url}`);
   }
   check(!sitemap.includes('404'), 'sitemap excludes the 404 page');
-  check(sitemap.split('<loc>').length - 1 === 3, 'sitemap lists exactly the three public pages');
+  check(sitemap.split('<loc>').length - 1 === 4, 'sitemap lists exactly the four public pages');
+  check(!sitemap.includes('/admin'), 'sitemap excludes admin');
 
   // per-page titles (static, English) and the data hook the language script reads
   check(/<title data-i18n-doc="meta\.title">Yauheni Buka \| AI-native Software \/ Product Engineer<\/title>/.test(idx), 'home title is the exact owner title');

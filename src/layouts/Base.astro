@@ -6,11 +6,13 @@ import SearchDialog from '../components/SearchDialog.astro';
 import { DEFAULT_LANG, messages, t } from '../i18n';
 
 /** Dictionary key of this page's document title. The client script swaps it on language change. */
-type TitleKey = 'meta.title' | 'meta.resumeTitle' | 'meta.favouritesTitle' | 'meta.notFoundTitle';
+type TitleKey = 'meta.title' | 'meta.resumeTitle' | 'meta.favouritesTitle' | 'meta.blogTitle' | 'meta.notFoundTitle';
+type DescriptionKey = 'meta.description' | 'meta.blogDescription';
 
 interface Props {
   titleKey?: TitleKey;
   description?: string;
+  descriptionKey?: DescriptionKey;
   /** Set on pages that must stay out of search results (the 404 page). */
   noindex?: boolean;
 }
@@ -18,7 +20,7 @@ interface Props {
 const dict = messages[DEFAULT_LANG];
 const titleKey: TitleKey = Astro.props.titleKey ?? 'meta.title';
 const title = t(titleKey);
-const description = Astro.props.description ?? dict.meta.description;
+const description = Astro.props.description ?? t(Astro.props.descriptionKey ?? 'meta.description');
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const shareImage = new URL('og/exotision-share.png', Astro.site);
 const noindex = Astro.props.noindex ?? false;
@@ -30,7 +32,7 @@ const noindex = Astro.props.noindex ?? false;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title data-i18n-doc={titleKey}>{title}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={description} data-i18n-desc={Astro.props.descriptionKey} />
     {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Exotision" />

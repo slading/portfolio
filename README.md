@@ -2,11 +2,11 @@
 
 Personal portfolio: AI-native software and product engineering. Light and dark themes on a grid background, English (default) and Polish copy.
 
-**Canonical site:** https://exotision.fun (canonical and Open Graph URLs). The existing production deployment is still at https://yauheni-buka.vercel.app/; this branch does not change DNS or deploy.
+**Canonical site:** https://exotision.fun (canonical and Open Graph URLs). The Vercel production branch, domain assignment, and deployed SHA must be checked in the Vercel project before merging; the repository alone cannot verify them.
 
 ## Stack
 
-- [Astro](https://astro.build) 7 (static output) + TypeScript (strict)
+- [Astro](https://astro.build) 7 (static pages with selective on-demand routes via the Vercel adapter) + TypeScript (strict)
 - Plain CSS with design tokens. Narrow centred column (820px max) with thin borders.
 - Self-hosted Inter Variable via `@fontsource-variable/inter`. No third-party font requests.
 - Brand icons from `simple-icons` (named imports only, so unused icons are not bundled).
@@ -18,8 +18,7 @@ Personal portfolio: AI-native software and product engineering. Light and dark t
 npm install
 npm run dev          # dev server on 0.0.0.0:4321
 npm run check        # astro check (types)
-npm run build        # static build to dist/
-npm run preview      # serve dist/ on 0.0.0.0:4321
+npm run build        # static pages + Vercel server output in dist/
 npm run fetch:github # refresh src/data/github-contributions.json (needs an authenticated gh CLI)
 npm run verify       # check + build + dist checks
 ```
@@ -102,7 +101,15 @@ More menu → **Resume** (`/resume/`) and **Favourite Movies** (`/favourites/`).
 - **Favourite Movies:** the list lives in `src/data/favourites.ts` (`movies`, in the owner's order). A card shows its poster only when that file exists under `public/` at build time; otherwise it shows a neutral placeholder. Posters must be authorised official artwork (no AI substitutes, no unofficial downloads). Poster files in `public/favourites/` (all nine present: JPEG, sRGB, at most 600 px wide, metadata stripped, each under 300 KB; `fit: 'contain'` letterboxes Donnie Darko, whose proportions differ from the 2:3 frame). The Covenant source is only 255×378 px, so replace it with a larger official image if one becomes available:
   - `the-covenant-2023.jpg`, `prisoners-2013.jpg`, `donnie-darko-2001.jpg`, `end-of-watch-2012.jpg`, `nightcrawler-2014.jpg`, `alice-in-borderland-2020.jpg`, `we-need-to-talk-about-kevin-2011.jpg`, `whiplash-2014.jpg`, `the-social-network-2010.jpg`
 
+## Blog foundation (Phase 1A)
+
+`/blog/` is an on-demand journal landing page with an empty state; it does not yet read posts. `/admin/` returns 404 with no dashboard until server-side authentication and authorization are implemented. No CMS writes or public post endpoints exist yet. The homepage, resume, favourites and 404 remain prerendered.
+
+The Vercel adapter does not support `astro preview`; use `npm run dev` for local route checks. A Vercel preview deployment is needed later to verify platform routing before release, not as part of this phase. The `path-to-regexp` override keeps Vercel's routing dependency on the patched 6.x release.
+
+The server-only `src/lib/server/supabase.ts` prepares a public-content client, but no route uses it yet. Future integration requires `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` at **server runtime**, plus `SUPABASE_ADMIN_USER_ID` for the single-admin allowlist (see `.env.example`); they are not needed for this foundation to build or run. The next phase must add authenticated SSR sessions, RLS, private Storage rules and protected mutations before enabling admin or publishing. Do not use a service-role key in browser code or expose a write endpoint without these controls.
+
 ## Notes
 
 - The N2D project embeds a static, local copy of the N2D interface, labelled as a demo.
-- Deployment: Astro is detected automatically by Vercel. This branch has not been deployed.
+- Deployment: the official Vercel adapter builds on-demand routes; existing portfolio pages remain prerendered. Verify the Vercel production project, branch and domain before merging.

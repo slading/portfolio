@@ -1,0 +1,37 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t } from '../../i18n';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<Base titleKey="meta.blogTitle" descriptionKey="meta.blogDescription">
+  <section class="page-head reveal show" aria-labelledby="blog-title">
+    <p class="kicker" data-i18n="pages.blog.kicker">{t('pages.blog.kicker')}</p>
+    <h1 id="blog-title" class="page-title" data-i18n="pages.blog.title">{t('pages.blog.title')}</h1>
+    <p class="page-intro" data-i18n="pages.blog.intro">{t('pages.blog.intro')}</p>
+  </section>
+  <section class="section" aria-label={t('pages.blog.emptyTitle')} data-i18n-aria="pages.blog.emptyTitle">
+    <div class="journal-empty">
+      <span class="journal-mark" aria-hidden="true">✳</span>
+      <h2 data-i18n="pages.blog.emptyTitle">{t('pages.blog.emptyTitle')}</h2>
+      <p class="muted" data-i18n="pages.blog.emptyText">{t('pages.blog.emptyText')}</p>
+      <a class="btn" href={import.meta.env.BASE_URL} data-i18n="pages.blog.back">{t('pages.blog.back')}</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head .kicker { margin-bottom: 10px; }
+  .journal-empty {
+    padding: 48px 24px;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    text-align: center;
+  }
+  .journal-mark { display: block; margin-bottom: 14px; color: var(--accent); font-size: 24px; }
+  .journal-empty h2 { font-size: 17px; font-weight: 600; }
+  .journal-empty p { margin: 8px auto 22px; max-width: 40ch; }
+</style>
