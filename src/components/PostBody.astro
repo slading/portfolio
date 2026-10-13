@@ -1,0 +1,14 @@
+---
+import { bodyText, paragraphs } from '../lib/server/posts';
+
+const text = bodyText(Astro.props.body);
+---
+
+<div class="post-body">
+  {text === null ? <p>Post content is unavailable.</p> : paragraphs(text).map((part) => <p>{part}</p>)}
+</div>
+
+<style>
+  .post-body { overflow-wrap: anywhere; line-height: 1.8; }
+  .post-body p { margin: 0 0 1.35em; white-space: pre-wrap; }
+</style>

@@ -1,0 +1,24 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import PostBody from '../../../../components/PostBody.astro';
+import { adminClient, privateHeaders } from '../../../../lib/server/auth';
+import { isId, type Post } from '../../../../lib/server/posts';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+const client = await adminClient(Astro);
+if (!client) return privateHeaders(Astro.redirect('/admin/login', 303));
+if (!isId(Astro.params.id)) return privateHeaders(new Response('Not Found', { status: 404 }));
+const { data, error } = await client.from('blog_posts').select('*').eq('id', Astro.params.id).maybeSingle();
+if (error) return privateHeaders(new Response('Unavailable', { status: 503 }));
+if (!data) return privateHeaders(new Response('Not Found', { status: 404 }));
+const post = data as Post;
+---
+
+<Base title={`Preview: ${post.title} | EXO`} description={post.excerpt} noindex>
+  <article lang="en">
+    <header class="page-head"><p class="kicker">Private preview · {post.status}</p><h1 class="page-title">{post.title}</h1><p class="page-intro">{post.excerpt}</p></header>
+    <div class="section"><p style="margin-bottom:22px"><a class="btn" href={`/admin/posts/${post.id}`}>← Back to editor</a></p><PostBody body={post.body} /></div>
+  </article>
+</Base>

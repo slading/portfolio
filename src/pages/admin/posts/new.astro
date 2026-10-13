@@ -1,0 +1,25 @@
+---
+import Base from '../../../layouts/Base.astro';
+import '../../../styles/admin.css';
+import { adminClient, privateHeaders } from '../../../lib/server/auth';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+if (!await adminClient(Astro)) return privateHeaders(Astro.redirect('/admin/login', 303));
+---
+
+<Base title="New post | EXO" noindex>
+  <section class="section admin-shell">
+    <div class="admin-head"><div><a class="kicker" href="/admin/posts">← Posts</a><h1 class="page-title">New post</h1></div></div>
+    <p class="admin-note">Save a draft first. Preview and publishing are available from the saved post.</p>
+    <form class="admin-form" action="/api/admin/posts" method="post" style="margin-top:24px">
+      <label>Title <input name="title" maxlength="180" required /></label>
+      <label>Slug <input name="slug" maxlength="120" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="a-note-from-today" required /></label>
+      <label>Excerpt <textarea class="excerpt" name="excerpt" maxlength="500"></textarea></label>
+      <label>Body <textarea name="text" maxlength="100000" placeholder="Start writing…"></textarea></label>
+      <p class="admin-note">Plain text for now. Paragraphs and line breaks are preserved; HTML is displayed as text, not executed.</p>
+      <button class="btn btn-primary" type="submit">Save draft</button>
+    </form>
+  </section>
+</Base>

@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://exotision.fun/sitemap-index.xml
+Sitemap: https://exotision.fun/blog-sitemap.xml

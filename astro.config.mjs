@@ -9,7 +9,10 @@ export default defineConfig({
   output: 'static',
   adapter: vercel(),
   trailingSlash: 'ignore',
-  integrations: [sitemap({ customPages: ['https://exotision.fun/blog/'] })],
+  integrations: [sitemap({
+    customPages: ['https://exotision.fun/blog/'],
+    filter: (page) => !new URL(page).pathname.startsWith('/admin') && !new URL(page).pathname.startsWith('/api/'),
+  })],
   vite: {
     server: {
       // Allow the sandbox preview host (proxied *.e2b.app) to reach the dev/preview server.

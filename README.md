@@ -101,13 +101,11 @@ More menu → **Resume** (`/resume/`) and **Favourite Movies** (`/favourites/`).
 - **Favourite Movies:** the list lives in `src/data/favourites.ts` (`movies`, in the owner's order). A card shows its poster only when that file exists under `public/` at build time; otherwise it shows a neutral placeholder. Posters must be authorised official artwork (no AI substitutes, no unofficial downloads). Poster files in `public/favourites/` (all nine present: JPEG, sRGB, at most 600 px wide, metadata stripped, each under 300 KB; `fit: 'contain'` letterboxes Donnie Darko, whose proportions differ from the 2:3 frame). The Covenant source is only 255×378 px, so replace it with a larger official image if one becomes available:
   - `the-covenant-2023.jpg`, `prisoners-2013.jpg`, `donnie-darko-2001.jpg`, `end-of-watch-2012.jpg`, `nightcrawler-2014.jpg`, `alice-in-borderland-2020.jpg`, `we-need-to-talk-about-kevin-2011.jpg`, `whiplash-2014.jpg`, `the-social-network-2010.jpg`
 
-## Blog foundation (Phase 1A)
+## Blog and admin (Phase 1B)
 
-`/blog/` is an on-demand journal landing page with an empty state; it does not yet read posts. `/admin/` returns 404 with no dashboard until server-side authentication and authorization are implemented. No CMS writes or public post endpoints exist yet. The homepage, resume, favourites and 404 remain prerendered.
+`/blog/` and `/blog/[slug]/` read published posts on demand. `/admin/login` provides password sign-in for one allowlisted owner; `/admin`, `/admin/posts`, `/admin/posts/new`, `/admin/posts/[id]` and `/admin/posts/[id]/preview` require a verified server session. The editor stores plain text in a constrained JSONB document. A saved draft can be previewed, published, unpublished or deleted in the browser. HTML is not interpreted, and images are deferred. The homepage, resume, favourites and 404 remain prerendered.
 
-The Vercel adapter does not support `astro preview`; use `npm run dev` for local route checks. A Vercel preview deployment is needed later to verify platform routing before release, not as part of this phase. The `path-to-regexp` override keeps Vercel's routing dependency on the patched 6.x release.
-
-The server-only `src/lib/server/supabase.ts` prepares a public-content client, but no route uses it yet. Future integration requires `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` at **server runtime**, plus `SUPABASE_ADMIN_USER_ID` for the single-admin allowlist (see `.env.example`); they are not needed for this foundation to build or run. The next phase must add authenticated SSR sessions, RLS, private Storage rules and protected mutations before enabling admin or publishing. Do not use a service-role key in browser code or expose a write endpoint without these controls.
+**Setup and integration test steps:** `supabase/SETUP.md`. Required server-side environment variable names are in `.env.example`. Neither the migration nor Supabase configuration is applied by this repository. The Vercel adapter does not support `astro preview`; use `npm run dev` locally and a Vercel Preview deployment for integration testing. The `path-to-regexp` override keeps Vercel's routing dependency on the patched 6.x release.
 
 ## Notes
 

@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import { adminClient, configured, privateHeaders } from '../../lib/server/auth';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+if (await adminClient(Astro)) return privateHeaders(Astro.redirect('/admin', 303));
+const available = configured();
+const error = Astro.url.searchParams.has('error');
+---
+
+<Base title="Sign in | EXO" noindex>
+  <section class="section admin-shell">
+    <p class="kicker">Private space</p>
+    <h1 class="page-title">Sign in</h1>
+    {available ? (
+      <form action="/api/admin/login" method="post" class="admin-form">
+        {error && <p role="alert">Sign in failed. Check your credentials and try again.</p>}
+        <label>Email <input name="email" type="email" autocomplete="username" required /></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" required /></label>
+        <button class="btn btn-primary" type="submit">Sign in</button>
+      </form>
+    ) : <p class="muted">The admin is not available yet.</p>}
+  </section>
+</Base>
+<style>
+  .admin-shell { max-width: 620px; min-height: 50vh; }
+  .admin-form { display: grid; gap: 16px; max-width: 420px; margin-top: 24px; }
+  .admin-form label { display: grid; gap: 6px; font-size: 13px; }
+  .admin-form input { width: 100%; padding: 10px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface); }
+  .admin-form [role=alert] { color: var(--warn); }
+</style>

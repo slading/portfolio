@@ -11,15 +11,18 @@ type DescriptionKey = 'meta.description' | 'meta.blogDescription';
 
 interface Props {
   titleKey?: TitleKey;
+  title?: string;
   description?: string;
   descriptionKey?: DescriptionKey;
+  ogType?: 'website' | 'article';
+  publishedAt?: string;
   /** Set on pages that must stay out of search results (the 404 page). */
   noindex?: boolean;
 }
 
 const dict = messages[DEFAULT_LANG];
 const titleKey: TitleKey = Astro.props.titleKey ?? 'meta.title';
-const title = t(titleKey);
+const title = Astro.props.title ?? t(titleKey);
 const description = Astro.props.description ?? t(Astro.props.descriptionKey ?? 'meta.description');
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const shareImage = new URL('og/exotision-share.png', Astro.site);
@@ -31,10 +34,11 @@ const noindex = Astro.props.noindex ?? false;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title data-i18n-doc={titleKey}>{title}</title>
+    <title data-i18n-doc={Astro.props.title ? undefined : titleKey}>{title}</title>
     <meta name="description" content={description} data-i18n-desc={Astro.props.descriptionKey} />
     {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={Astro.props.ogType ?? 'website'} />
+    {Astro.props.publishedAt && <meta property="article:published_time" content={Astro.props.publishedAt} />}
     <meta property="og:site_name" content="Exotision" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

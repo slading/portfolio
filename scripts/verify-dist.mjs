@@ -41,9 +41,12 @@ if (!existsSync(indexPath)) {
 const html = readFileSync(indexPath, 'utf8');
 const vercelRoutes = JSON.parse(readFileSync(join(root, '.vercel/output/config.json'), 'utf8')).routes;
 check(!existsSync(join(dist, 'blog/index.html')) && !existsSync(join(dist, 'admin/index.html')), 'blog and admin are not prerendered');
-for (const path of ['blog', 'admin']) {
-  check(vercelRoutes.some((route) => route.src === `^/${path}/?$` && route.dest === '_render'), `/${path} is routed to the Vercel function`);
+for (const path of ['blog', 'blog-sitemap\\.xml', 'admin', 'admin/login', 'admin/posts', 'admin/posts/new', 'api/admin/login', 'api/admin/logout', 'api/admin/posts']) {
+  check(vercelRoutes.some((route) => route.src === `^/${path}${path.includes('xml') ? '$' : '/?$'}` && route.dest === '_render'), `/${path} is routed to the Vercel function`);
 }
+check(vercelRoutes.some((route) => route.src === '^/blog/([^/]+?)/?$' && route.dest === '_render'), 'individual posts are rendered on demand');
+check(vercelRoutes.some((route) => route.src === '^/admin/posts/([^/]+?)/?$' && route.dest === '_render'), 'post editor is rendered on demand');
+check(!existsSync(join(dist, 'admin/login/index.html')) && !existsSync(join(dist, 'admin/posts/index.html')), 'private pages are not in static output');
 
 /** Load a TS dictionary by transpiling it to CommonJS (no extra dependencies). */
 function loadDict(file) {
@@ -345,6 +348,7 @@ console.log('Phase 5B: SEO, social, 404, accessibility, N2D default');
   const robots = read('robots.txt');
   check(/^User-agent: \*/m.test(robots) && /^Allow: \//m.test(robots), 'robots.txt: allows all crawlers');
   check(robots.includes('Sitemap: https://exotision.fun/sitemap-index.xml'), 'robots.txt: points to the sitemap on the canonical domain');
+  check(robots.includes('Sitemap: https://exotision.fun/blog-sitemap.xml'), 'robots.txt: advertises the on-demand post sitemap');
   const sitemapIndex = read('sitemap-index.xml');
   check(sitemapIndex.includes('https://exotision.fun/sitemap-0.xml'), 'sitemap-index.xml: references sitemap-0.xml');
   const sitemap = read('sitemap-0.xml');

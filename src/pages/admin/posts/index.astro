@@ -1,0 +1,29 @@
+---
+import Base from '../../../layouts/Base.astro';
+import '../../../styles/admin.css';
+import { adminClient, privateHeaders } from '../../../lib/server/auth';
+import type { Post } from '../../../lib/server/posts';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+const client = await adminClient(Astro);
+if (!client) return privateHeaders(Astro.redirect('/admin/login', 303));
+const { data, error } = await client.from('blog_posts').select('id,title,slug,status,updated_at,published_at').order('updated_at', { ascending: false });
+const posts = (data ?? []) as Post[];
+---
+
+<Base title="Posts | EXO" noindex>
+  <section class="section admin-shell">
+    <div class="admin-head">
+      <div><a class="kicker" href="/admin">← Dashboard</a><h1 class="page-title">Posts</h1></div>
+      <a class="btn btn-primary" href="/admin/posts/new">New post</a>
+    </div>
+    {error ? <p role="alert">Posts could not be loaded. Please try again.</p> : posts.length === 0 ? <p class="muted">No posts yet.</p> : (
+      <ul class="admin-list">{posts.map((post) => <li>
+        <div><a href={`/admin/posts/${post.id}`}>{post.title}</a><div class="admin-status">{post.status} · {post.slug}</div></div>
+        <a class="btn btn-sm" href={`/admin/posts/${post.id}`}>Edit</a>
+      </li>)}</ul>
+    )}
+  </section>
+</Base>

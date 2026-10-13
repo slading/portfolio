@@ -1,0 +1,49 @@
+---
+import Base from '../../../layouts/Base.astro';
+import '../../../styles/admin.css';
+import { adminClient, privateHeaders } from '../../../lib/server/auth';
+import { bodyText, isId, type Post } from '../../../lib/server/posts';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+const client = await adminClient(Astro);
+if (!client) return privateHeaders(Astro.redirect('/admin/login', 303));
+if (!isId(Astro.params.id)) return privateHeaders(new Response('Not Found', { status: 404 }));
+const { data, error } = await client.from('blog_posts').select('*').eq('id', Astro.params.id).maybeSingle();
+if (error) return privateHeaders(new Response('Unavailable', { status: 503 }));
+if (!data) return privateHeaders(new Response('Not Found', { status: 404 }));
+const post = data as Post;
+const text = bodyText(post.body);
+---
+
+<Base title={`Edit ${post.title} | EXO`} noindex>
+  <section class="section admin-shell">
+    <div class="admin-head">
+      <div><a class="kicker" href="/admin/posts">← Posts</a><h1 class="page-title">Edit post</h1><span class="admin-status">{post.status}</span></div>
+      <a class="btn" href={`/admin/posts/${post.id}/preview`}>Preview saved post</a>
+    </div>
+    {Astro.url.searchParams.has('saved') && <p role="status">Changes saved.</p>}
+    {text === null ? <p role="alert">This post's body format is unsupported. Editing is disabled.</p> : <>
+      {post.status === 'published' && <p class="admin-note">This post is live. Saving changes updates the public page immediately.</p>}
+      <form class="admin-form" action={`/api/admin/posts/${post.id}`} method="post" style="margin-top:20px">
+        <input type="hidden" name="intent" value="save" />
+        <label>Title <input name="title" value={post.title} maxlength="180" required /></label>
+        <label>Slug <input name="slug" value={post.slug} maxlength="120" pattern="[a-z0-9]+(-[a-z0-9]+)*" readonly={Boolean(post.published_at)} required /></label>
+        <label>Excerpt <textarea class="excerpt" name="excerpt" maxlength="500">{post.excerpt}</textarea></label>
+        <label>Body <textarea name="text" maxlength="100000">{text}</textarea></label>
+        <p class="admin-note">Plain text; markup is never interpreted as HTML. Save before opening the preview.</p>
+        <button class="btn btn-primary" type="submit">Save changes</button>
+      </form>
+    </>}
+    <hr class="admin-divider" />
+    <div class="admin-actions">
+      {post.status === 'draft' ? <form action={`/api/admin/posts/${post.id}`} method="post"><input type="hidden" name="intent" value="publish" /><button class="btn btn-primary" type="submit">Publish</button></form> : <form action={`/api/admin/posts/${post.id}`} method="post"><input type="hidden" name="intent" value="unpublish" /><button class="btn" type="submit">Unpublish</button></form>}
+      <form action={`/api/admin/posts/${post.id}`} method="post" class="admin-actions">
+        <input type="hidden" name="intent" value="delete" />
+        <label class="admin-note"><input type="checkbox" name="confirm" value="yes" required /> Confirm permanent deletion</label>
+        <button class="btn" type="submit">Delete post</button>
+      </form>
+    </div>
+  </section>
+</Base>
