@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { checkOrigin, configured, privateHeaders, serverClient } from '../../../lib/server/auth';
+import { supabaseConfig } from '../../../lib/server/config';
 
 export const prerender = false;
 
@@ -15,7 +16,7 @@ export const POST: APIRoute = async (context) => {
   const client = serverClient(context);
   const { error } = await client.auth.signInWithPassword({ email, password });
   const { data } = error ? { data: null } : await client.auth.getUser();
-  if (error || data?.user?.id !== process.env.SUPABASE_ADMIN_USER_ID) {
+  if (error || data?.user?.id !== supabaseConfig().adminId) {
     await client.auth.signOut({ scope: 'local' });
     return privateHeaders(context.redirect('/admin/login?error=1', 303));
   }

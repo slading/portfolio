@@ -16,7 +16,7 @@ Configure these as **server runtime** variables in the intended Vercel Preview e
 - `SUPABASE_PUBLISHABLE_KEY` — publishable/anon key, never a service-role or secret key.
 - `SUPABASE_ADMIN_USER_ID` — the same allowlisted Auth UUID.
 
-For local testing, put them in an ignored `.env` file. Vercel Preview variables require a new preview build to be present at runtime; later **publishing posts** does not require a build. Do not set Production values or promote a deployment until the owner approves release.
+For local testing, put them in an ignored `.env` file. After any Preview environment change, redeploy the intended branch. Request `/admin/login` and inspect the Preview function logs for `[exo] Supabase runtime variables`: it reports only the names marked present or missing, never their values. If any name is missing, confirm the Vercel project, Preview scope, branch-specific overrides and deployment SHA; do not paste variable values into logs or PR comments. Later **publishing posts** does not require a build. Do not set Production values or promote a deployment until the owner approves release.
 
 Verify in the Preview environment with the real project: anonymous SELECT returns only published rows; anonymous writes fail; a second authenticated user cannot read drafts or write; the allowlisted user can read and write drafts. Verify draft URLs return 404, published URLs become visible without a deployment, unpublishing hides them immediately, preview is private, login/logout survives a refresh, cross-origin POST fails, and raw HTML is printed as text. Record results without including credentials or draft text in logs. Do not call the implementation end-to-end tested until these checks pass.
 

@@ -1,15 +1,16 @@
 import { parse } from 'cookie';
 import { createServerClient } from '@supabase/ssr';
 import type { APIContext } from 'astro';
+import { supabaseConfig } from './config';
+export { checkOrigin, privateHeaders } from './request';
 
 export function configured() {
-  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_PUBLISHABLE_KEY && process.env.SUPABASE_ADMIN_USER_ID);
+  return supabaseConfig().configured;
 }
 
 export function serverClient(context: APIContext) {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) throw new Error('Supabase configuration missing');
+  const { url, key } = supabaseConfig();
+  if (!url?.trim() || !key?.trim()) throw new Error('Supabase configuration missing');
   const values = new Map<string, string>();
   for (const [name, value] of Object.entries(parse(context.request.headers.get('cookie') ?? ''))) {
     if (value !== undefined) values.set(name, value);
@@ -34,24 +35,10 @@ export function serverClient(context: APIContext) {
 }
 
 export async function adminClient(context: APIContext) {
-  if (!configured()) return null;
+  const { configured: available, adminId } = supabaseConfig();
+  if (!available) return null;
   const client = serverClient(context);
   const { data, error } = await client.auth.getUser();
-  if (error || !data.user || data.user.id !== process.env.SUPABASE_ADMIN_USER_ID) return null;
+  if (error || !data.user || data.user.id !== adminId) return null;
   return client;
-}
-
-export function checkOrigin(context: APIContext) {
-  const origin = context.request.headers.get('origin');
-  const type = context.request.headers.get('content-type') ?? '';
-  const length = Number(context.request.headers.get('content-length') ?? 0);
-  return origin === context.url.origin &&
-    (type.startsWith('application/x-www-form-urlencoded') || type.startsWith('multipart/form-data')) &&
-    Number.isFinite(length) && length <= 150_000;
-}
-
-export function privateHeaders(response: Response) {
-  response.headers.set('Cache-Control', 'private, no-store');
-  response.headers.set('X-Robots-Tag', 'noindex, nofollow');
-  return response;
 }
