@@ -4,7 +4,12 @@
 -- The SQL Editor's privileged role is used only to set up and inspect the probe.
 -- All ALLOWED/DENIED assertions run after SET LOCAL ROLE authenticated.
 
+-- Commit only the session-local probe ID, before creating any rows. A SQL Editor
+-- may submit the entire batch as one implicit transaction; without this boundary,
+-- the fixture ROLLBACK would also erase the ID needed for the cleanup check.
+BEGIN;
 SELECT set_config('exo.rls_probe_id', gen_random_uuid()::text, false);
+COMMIT;
 
 BEGIN;
 SET LOCAL statement_timeout = '15s';
@@ -95,7 +100,7 @@ BEGIN
             '{"version":1,"text":"Should be rejected"}'::jsonb, 'draft');
     RAISE EXCEPTION 'Non-admin INSERT unexpectedly succeeded';
   EXCEPTION WHEN insufficient_privilege THEN
-    IF position('row-level security' IN SQLERRM) = 0 THEN
+    IF SQLERRM <> 'new row violates row-level security policy for table "blog_posts"' THEN
       RAISE;
     END IF;
     RAISE NOTICE 'PASS: non-admin INSERT DENIED by RLS';
