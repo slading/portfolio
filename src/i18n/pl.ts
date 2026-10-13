@@ -10,9 +10,11 @@ export const pl: Messages = {
     title: 'Yauheni Buka | AI-native Software / Product Engineer',
     resumeTitle: 'CV | Yauheni Buka',
     favouritesTitle: 'Ulubione filmy | Yauheni Buka',
+    blogTitle: 'Dziennik | Yauheni Buka',
     notFoundTitle: 'Nie znaleziono strony | Yauheni Buka',
     description:
       'Inżynier oprogramowania i produktu AI-native. Systemy rezerwacji, narzędzia wspierane AI i studia przypadków inżynierskich.',
+    blogDescription: 'Osobiste notatki o życiu, inżynierii, eksperymentach, biznesie i budowaniu publicznie.',
   },
 
   ui: {
@@ -44,6 +46,7 @@ export const pl: Messages = {
     home: 'Start',
     about: 'O mnie',
     projects: 'Projekty',
+    blog: 'Dziennik',
     resume: 'CV',
     movies: 'Ulubione filmy',
   },
@@ -199,6 +202,14 @@ export const pl: Messages = {
   },
 
   pages: {
+    blog: {
+      kicker: 'Notatki',
+      title: 'Dziennik',
+      intro: 'Myśli o życiu, inżynierii, eksperymentach, biznesie i budowaniu publicznie. Także miejsce na niedokończone pomysły.',
+      emptyTitle: 'Na razie pusto',
+      emptyText: 'Nie opublikowano jeszcze żadnych wpisów. Zajrzyj tu wkrótce.',
+      back: 'Wróć do portfolio',
+    },
     notFound: {
       title: 'Nie znaleziono strony',
       intro: 'Strona, której szukasz, nie istnieje lub została przeniesiona.',
@@ -232,6 +243,7 @@ export const pl: Messages = {
       home: 'Start',
       about: 'O mnie',
       projects: 'Projekty',
+      blog: 'Dziennik',
       n2d: 'N2D Nails',
       sentinel: 'SentinelAI',
       rfq: 'Project 04 — AI RFQ Operations Agent',

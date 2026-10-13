@@ -4,6 +4,7 @@ node_modules/
 # build output & caches
 dist/
 .astro/
+.vercel/
 
 # logs / env
 npm-debug.log*

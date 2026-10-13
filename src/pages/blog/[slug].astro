@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostBody from '../../components/PostBody.astro';
+import { createPublicContentClient } from '../../lib/server/supabase';
+import { bodyText, type Post } from '../../lib/server/posts';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'no-store');
+const slug = Astro.params.slug;
+if (!slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 120) return new Response('Not Found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
+let post: Post | null = null;
+try {
+  const { data, error } = await createPublicContentClient().from('blog_posts').select('*')
+    .eq('slug', slug).eq('status', 'published').lte('published_at', new Date().toISOString()).maybeSingle();
+  if (error) return new Response('Unavailable', { status: 503, headers: { 'Cache-Control': 'no-store' } });
+  post = data as Post | null;
+} catch {
+  return new Response('Unavailable', { status: 503, headers: { 'Cache-Control': 'no-store' } });
+}
+if (!post) return new Response('Not Found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
+const text = bodyText(post.body);
+const description = post.excerpt || (text ?? '').slice(0, 155) || 'A note from the EXO journal.';
+---
+
+<Base title={`${post.title} | EXO Journal`} description={description} ogType="article" publishedAt={post.published_at ?? undefined}>
+  <article lang="en">
+    <header class="page-head">
+      <p class="kicker"><a href="/blog/">← Journal</a></p>
+      <h1 class="page-title">{post.title}</h1>
+      <p class="page-intro">{post.excerpt}</p>
+      <time class="post-date" datetime={post.published_at ?? ''}>{post.published_at ? new Date(post.published_at).toLocaleDateString('en-GB', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }) : ''}</time>
+    </header>
+    <div class="section"><PostBody body={post.body} /></div>
+  </article>
+</Base>
+<style>
+  .post-date { display: block; margin-top: 12px; font-family: var(--mono); color: var(--muted); font-size: 12px; }
+</style>

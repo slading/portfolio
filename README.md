@@ -2,11 +2,11 @@
 
 Personal portfolio: AI-native software and product engineering. Light and dark themes on a grid background, English (default) and Polish copy.
 
-**Canonical site:** https://exotision.fun (canonical and Open Graph URLs). The existing production deployment is still at https://yauheni-buka.vercel.app/; this branch does not change DNS or deploy.
+**Canonical site:** https://www.exotision.fun (canonical and Open Graph URLs). The apex-to-`www` redirect and Vercel production settings must be verified in Vercel before release; a successful build does not verify the live domain.
 
 ## Stack
 
-- [Astro](https://astro.build) 7 (static output) + TypeScript (strict)
+- [Astro](https://astro.build) 7 (static pages with selective on-demand routes via the Vercel adapter) + TypeScript (strict)
 - Plain CSS with design tokens. Narrow centred column (820px max) with thin borders.
 - Self-hosted Inter Variable via `@fontsource-variable/inter`. No third-party font requests.
 - Brand icons from `simple-icons` (named imports only, so unused icons are not bundled).
@@ -18,8 +18,7 @@ Personal portfolio: AI-native software and product engineering. Light and dark t
 npm install
 npm run dev          # dev server on 0.0.0.0:4321
 npm run check        # astro check (types)
-npm run build        # static build to dist/
-npm run preview      # serve dist/ on 0.0.0.0:4321
+npm run build        # static pages + Vercel server output in dist/
 npm run fetch:github # refresh src/data/github-contributions.json (needs an authenticated gh CLI)
 npm run verify       # check + build + dist checks
 ```
@@ -102,7 +101,13 @@ More menu → **Resume** (`/resume/`) and **Favourite Movies** (`/favourites/`).
 - **Favourite Movies:** the list lives in `src/data/favourites.ts` (`movies`, in the owner's order). A card shows its poster only when that file exists under `public/` at build time; otherwise it shows a neutral placeholder. Posters must be authorised official artwork (no AI substitutes, no unofficial downloads). Poster files in `public/favourites/` (all nine present: JPEG, sRGB, at most 600 px wide, metadata stripped, each under 300 KB; `fit: 'contain'` letterboxes Donnie Darko, whose proportions differ from the 2:3 frame). The Covenant source is only 255×378 px, so replace it with a larger official image if one becomes available:
   - `the-covenant-2023.jpg`, `prisoners-2013.jpg`, `donnie-darko-2001.jpg`, `end-of-watch-2012.jpg`, `nightcrawler-2014.jpg`, `alice-in-borderland-2020.jpg`, `we-need-to-talk-about-kevin-2011.jpg`, `whiplash-2014.jpg`, `the-social-network-2010.jpg`
 
+## Blog and admin (Phase 1B)
+
+`/blog/` and `/blog/[slug]/` read published posts on demand. `/admin/login` provides password sign-in for one allowlisted owner; `/admin`, `/admin/posts`, `/admin/posts/new`, `/admin/posts/[id]` and `/admin/posts/[id]/preview` require a verified server session. The editor stores plain text in a constrained JSONB document. A saved draft can be previewed, published, unpublished or deleted in the browser. HTML is not interpreted, and images are deferred. The homepage, resume, favourites and 404 remain prerendered.
+
+**Setup and integration test steps:** `supabase/SETUP.md`. Required server-side environment variable names are in `.env.example`. Neither the migration nor Supabase configuration is applied by this repository. The Vercel adapter does not support `astro preview`; use `npm run dev` locally and a Vercel Preview deployment for integration testing. The `path-to-regexp` override keeps Vercel's routing dependency on the patched 6.x release.
+
 ## Notes
 
 - The N2D project embeds a static, local copy of the N2D interface, labelled as a demo.
-- Deployment: Astro is detected automatically by Vercel. This branch has not been deployed.
+- Deployment: the official Vercel adapter builds on-demand routes; existing portfolio pages remain prerendered. Verify the Vercel production project, branch and domain before merging.

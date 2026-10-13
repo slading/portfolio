@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Post-build checks on dist/. Run via `npm run verify` (after `astro check` and `astro build`).
+ * Post-build checks on dist/client and Vercel routing. Run via `npm run verify`.
  *
  * Checks:
  *  - page metadata and lang
@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const dist = join(root, 'dist');
+const dist = join(root, 'dist/client');
 const indexPath = join(dist, 'index.html');
 
 let failures = 0;
@@ -35,10 +35,18 @@ const fail = (msg) => {
 const check = (ok, msg) => (ok ? pass(msg) : fail(msg));
 
 if (!existsSync(indexPath)) {
-  console.error('dist/index.html not found. Run `npm run build` first.');
+  console.error('dist/client/index.html not found. Run `npm run build` first.');
   process.exit(1);
 }
 const html = readFileSync(indexPath, 'utf8');
+const vercelRoutes = JSON.parse(readFileSync(join(root, '.vercel/output/config.json'), 'utf8')).routes;
+check(!existsSync(join(dist, 'blog/index.html')) && !existsSync(join(dist, 'admin/index.html')), 'blog and admin are not prerendered');
+for (const path of ['blog', 'blog-sitemap\\.xml', 'admin', 'admin/login', 'admin/posts', 'admin/posts/new', 'api/admin/login', 'api/admin/logout', 'api/admin/posts']) {
+  check(vercelRoutes.some((route) => route.src === `^/${path}${path.includes('xml') ? '$' : '/?$'}` && route.dest === '_render'), `/${path} is routed to the Vercel function`);
+}
+check(vercelRoutes.some((route) => route.src === '^/blog/([^/]+?)/?$' && route.dest === '_render'), 'individual posts are rendered on demand');
+check(vercelRoutes.some((route) => route.src === '^/admin/posts/([^/]+?)/?$' && route.dest === '_render'), 'post editor is rendered on demand');
+check(!existsSync(join(dist, 'admin/login/index.html')) && !existsSync(join(dist, 'admin/posts/index.html')), 'private pages are not in static output');
 
 /** Load a TS dictionary by transpiling it to CommonJS (no extra dependencies). */
 function loadDict(file) {
@@ -58,8 +66,8 @@ console.log('Metadata');
 check(/<html[^>]*lang="en"/.test(html), 'html lang is en by default');
 check(/<title[^>]*>[^<]+<\/title>/.test(html), 'title present');
 check(/<meta name="description" content="[^"]+"/.test(html), 'meta description present');
-check(/<link rel="canonical" href="https:\/\/exotision\.fun\/"/.test(html), 'canonical URL is https://exotision.fun/');
-check(/<meta property="og:url" content="https:\/\/exotision\.fun\/"/.test(html), 'og:url is https://exotision.fun/');
+check(/<link rel="canonical" href="https:\/\/www\.exotision\.fun\/"/.test(html), 'canonical URL is https://www.exotision.fun/');
+check(/<meta property="og:url" content="https:\/\/www\.exotision\.fun\/"/.test(html), 'og:url is https://www.exotision.fun/');
 check(!/yauheni-buka\.vercel\.app/.test(html), 'no old vercel URL in page metadata');
 check(/rel="icon" href="\/favicon\.svg"/.test(html), 'favicon link present');
 check(/rel="apple-touch-icon" href="\/apple-touch-icon\.png"/.test(html), 'apple-touch-icon link present');
@@ -93,7 +101,7 @@ check(missing.length === 0, `all ${local.length} local references resolve${missi
 
 const thirdParty = [...html.matchAll(/https?:\/\/([^/"' )]+)/g)]
   .map((m) => m[1])
-  .filter((h) => !/^(exotision\.fun|github\.com|nail-booking-pi\.vercel\.app|sentinel-ai-ten-nu\.vercel\.app|www\.w3\.org|open\.spotify\.com|image-cdn-(ak|fa)\.spotifycdn\.com)$/.test(h));
+  .filter((h) => !/^(www\.exotision\.fun|github\.com|nail-booking-pi\.vercel\.app|sentinel-ai-ten-nu\.vercel\.app|www\.w3\.org|open\.spotify\.com|image-cdn-(ak|fa)\.spotifycdn\.com)$/.test(h));
 // Allowed: the owner's own site, GitHub, the two live project links in projects.ts, and Spotify
 // (track links and cover artwork for the music player; playback itself is Spotify's official embed).
 check(thirdParty.length === 0, `no unexpected hosts in markup${thirdParty.length ? ': ' + thirdParty.join(', ') : ''}`);
@@ -235,7 +243,8 @@ for (const page of subpages) {
     continue;
   }
   const h = readFileSync(p, 'utf8');
-  check(h.includes(`<link rel="canonical" href="https://exotision.fun${page.path}">`), `${page.path}: canonical URL`);
+  check(h.includes(`<link rel="canonical" href="https://www.exotision.fun${page.path}">`), `${page.path}: canonical URL`);
+  check(h.includes(`<meta property="og:url" content="https://www.exotision.fun${page.path}">`), `${page.path}: og:url matches canonical`);
   check(/<h1[^>]*class="page-title"/.test(h), `${page.path}: page heading present`);
   check(/href="\/resume\/"/.test(h) && /href="\/favourites\/"/.test(h), `${page.path}: More menu links to both pages`);
   check(/href="\/#about"/.test(h), `${page.path}: nav links to homepage sections with absolute paths`);
@@ -339,15 +348,23 @@ console.log('Phase 5B: SEO, social, 404, accessibility, N2D default');
   // robots and sitemap
   const robots = read('robots.txt');
   check(/^User-agent: \*/m.test(robots) && /^Allow: \//m.test(robots), 'robots.txt: allows all crawlers');
-  check(robots.includes('Sitemap: https://exotision.fun/sitemap-index.xml'), 'robots.txt: points to the sitemap on the canonical domain');
+  check(robots.includes('Sitemap: https://www.exotision.fun/sitemap-index.xml'), 'robots.txt: points to the sitemap on the canonical domain');
+  check(robots.includes('Sitemap: https://www.exotision.fun/blog-sitemap.xml'), 'robots.txt: advertises the on-demand post sitemap');
+  check((robots.match(/^Sitemap: /gm) ?? []).length === 2, 'robots.txt: exactly two sitemap references');
   const sitemapIndex = read('sitemap-index.xml');
-  check(sitemapIndex.includes('https://exotision.fun/sitemap-0.xml'), 'sitemap-index.xml: references sitemap-0.xml');
+  check(sitemapIndex.includes('https://www.exotision.fun/sitemap-0.xml'), 'sitemap-index.xml: references sitemap-0.xml');
+  check((sitemapIndex.match(/<loc>/g) ?? []).length === 1, 'sitemap index lists the static sitemap once');
   const sitemap = read('sitemap-0.xml');
-  for (const url of ['https://exotision.fun/', 'https://exotision.fun/resume/', 'https://exotision.fun/favourites/']) {
+  for (const url of ['https://www.exotision.fun/', 'https://www.exotision.fun/resume/', 'https://www.exotision.fun/favourites/', 'https://www.exotision.fun/blog/']) {
     check(sitemap.includes(`<loc>${url}</loc>`), `sitemap lists ${url}`);
   }
   check(!sitemap.includes('404'), 'sitemap excludes the 404 page');
-  check(sitemap.split('<loc>').length - 1 === 3, 'sitemap lists exactly the three public pages');
+  check(sitemap.split('<loc>').length - 1 === 4, 'sitemap lists exactly the four public pages');
+  check(!sitemap.includes('/admin') && !sitemap.includes('/api/'), 'sitemap excludes admin and API routes');
+  const publicPages = [idx, resumePage, favPage, notFound];
+  check([...publicPages, robots, sitemapIndex, sitemap].every((content) => !content.includes('https://exotision.fun')), 'built public metadata, robots and static sitemaps contain no apex URLs');
+  const blogSitemapSource = readFileSync(join(root, 'src/pages/blog-sitemap.xml.ts'), 'utf8');
+  check(blogSitemapSource.includes('https://www.exotision.fun/blog/${post.slug}/') && !blogSitemapSource.includes('https://exotision.fun'), 'dynamic blog sitemap source uses only the www host');
 
   // per-page titles (static, English) and the data hook the language script reads
   check(/<title data-i18n-doc="meta\.title">Yauheni Buka \| AI-native Software \/ Product Engineer<\/title>/.test(idx), 'home title is the exact owner title');
@@ -356,9 +373,10 @@ console.log('Phase 5B: SEO, social, 404, accessibility, N2D default');
   check(/<title data-i18n-doc="meta\.notFoundTitle">Page not found \| Yauheni Buka<\/title>/.test(notFound), '404 has its own title');
 
   // Open Graph and Twitter card
-  const shareUrl = 'https://exotision.fun/og/exotision-share.png';
+  const shareUrl = 'https://www.exotision.fun/og/exotision-share.png';
   for (const [name, html] of [['home', idx], ['resume', resumePage], ['favourites', favPage], ['404', notFound]]) {
     check(html.includes(`<meta property="og:image" content="${shareUrl}"`), `og:image is absolute on ${name}`);
+    check(html.includes(`<meta name="twitter:image" content="${shareUrl}"`), `twitter:image is absolute on ${name}`);
     check(html.includes('<meta name="twitter:card" content="summary_large_image"'), `twitter:card on ${name}`);
     check(/<meta property="og:image:width" content="1200"/.test(html) && /<meta property="og:image:height" content="630"/.test(html), `og:image size declared on ${name}`);
   }
@@ -372,6 +390,7 @@ console.log('Phase 5B: SEO, social, 404, accessibility, N2D default');
   // 404 page
   check(/<meta name="robots" content="noindex"/.test(notFound), '404: noindex');
   check(!/<link rel="canonical"/.test(notFound), '404: no canonical URL');
+  check(!/<meta property="og:url"/.test(notFound), '404: no public OG URL');
   check(notFound.includes('href="/resume/"') && notFound.includes('href="/favourites/"') && notFound.includes('href="/"'), '404: links back to home, resume and favourites');
 
   // Music error copy: no reference to a removed Spotify control, in any built file

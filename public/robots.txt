@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://exotision.fun/sitemap-index.xml
+Sitemap: https://www.exotision.fun/sitemap-index.xml
+Sitemap: https://www.exotision.fun/blog-sitemap.xml
