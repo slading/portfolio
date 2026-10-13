@@ -2,7 +2,7 @@
 
 Personal portfolio: AI-native software and product engineering. Light and dark themes on a grid background, English (default) and Polish copy.
 
-**Canonical site:** https://exotision.fun (canonical and Open Graph URLs). The Vercel production branch, domain assignment, and deployed SHA must be checked in the Vercel project before merging; the repository alone cannot verify them.
+**Canonical site:** https://www.exotision.fun (canonical and Open Graph URLs). The apex-to-`www` redirect and Vercel production settings must be verified in Vercel before release; a successful build does not verify the live domain.
 
 ## Stack
 

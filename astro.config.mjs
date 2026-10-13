@@ -5,12 +5,12 @@ import vercel from '@astrojs/vercel';
 
 // Canonical site URL: the personal domain. Canonical and og:url are derived from this.
 export default defineConfig({
-  site: 'https://exotision.fun',
+  site: 'https://www.exotision.fun',
   output: 'static',
   adapter: vercel(),
   trailingSlash: 'ignore',
   integrations: [sitemap({
-    customPages: ['https://exotision.fun/blog/'],
+    customPages: ['https://www.exotision.fun/blog/'],
     filter: (page) => !new URL(page).pathname.startsWith('/admin') && !new URL(page).pathname.startsWith('/api/'),
   })],
   vite: {
