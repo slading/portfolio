@@ -136,23 +136,23 @@ export const pl: Messages = {
       sentinel: {
         name: 'SentinelAI',
         summary:
-          'Dashboard do wykrywania podejrzanych wzorców transakcji i kierowania alertów do workflow compliance.',
+          'Publiczne demo tylko do odczytu z czterema syntetycznymi dochodzeniami, ustrukturyzowanymi werdyktami, zgłoszeniami compliance, powiadomieniami klientów i raportowaniem zbiorczym.',
         facts: [
           {
-            label: 'PROBLEM',
-            text: 'Podejrzane wzorce transakcji trudno konsekwentnie przeglądać na większą skalę.',
+            label: 'PUBLICZNE DEMO',
+            text: 'Demo prezentuje cztery wstępnie przygotowane syntetyczne dochodzenia. Jest tylko do odczytu i nie wykorzystuje prawdziwych danych klientów, wywołań AI na żywo, uruchamiania pipeline’u ani wysyłki e-maili.',
           },
           {
             label: 'ZBUDOWANO',
-            text: 'Wykrywanie anomalii wieloetapowych, skoków częstotliwości i niezgodności lokalizacji; ustrukturyzowane oceny ryzyka, routing alertów i łańcuch audytowy.',
+            text: 'Każde dochodzenie przedstawia dowody i ustrukturyzowany werdykt AI, a następnie zgłoszenie compliance i powiadomienie klienta.',
           },
           {
-            label: 'INŻYNIERIA',
-            text: 'Statystyczne sygnały fraud/anomaly i łańcuch logów audytowych SHA-256, z możliwymi ścieżkami wdrożenia przez Docker i Vercel.',
+            label: 'RAPORTOWANIE',
+            text: 'Raport zbiorczy podsumowuje syntetyczną partię, w tym rozkład werdyktów, zalecane działania i zapisane szacunki użycia.',
           },
           {
             label: 'STATUS',
-            text: 'Proof inżynierski.',
+            text: 'Prototyp z udostępnionym publicznie demo tylko do odczytu.',
           },
         ],
       },
