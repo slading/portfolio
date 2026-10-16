@@ -138,23 +138,23 @@ export const en = {
       sentinel: {
         name: 'SentinelAI',
         summary:
-          'A dashboard for detecting suspicious transaction patterns and routing alerts into compliance workflows.',
+          'A read-only public demo of four synthetic investigations, with structured verdicts, compliance tickets, client notices and aggregate reporting.',
         facts: [
           {
-            label: 'PROBLEM',
-            text: 'Suspicious transaction patterns are difficult to review consistently at scale.',
+            label: 'PUBLIC DEMO',
+            text: 'Explore four precomputed synthetic investigations. The demo is read-only and uses no real customer data, live AI calls, pipeline execution or email delivery.',
           },
           {
             label: 'BUILT',
-            text: 'Multi-hop, velocity and location anomaly detection with structured risk verdicts, routing and a chained audit trail.',
+            text: 'Each investigation presents evidence and a structured AI verdict, followed by a compliance ticket and client notice.',
           },
           {
-            label: 'ENGINEERING',
-            text: 'Statistical fraud/anomaly signals and chained SHA-256 audit logging, with Docker and Vercel deployment paths.',
+            label: 'REPORTING',
+            text: 'An aggregate report summarizes the synthetic batch, including verdict distribution, recommended actions and stored usage estimates.',
           },
           {
             label: 'STATUS',
-            text: 'Applied-AI/backend technical proof.',
+            text: 'Prototype with a released, read-only public demo.',
           },
         ],
       },
