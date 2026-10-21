@@ -57,7 +57,7 @@ export const en = {
     name: 'Yauheni Buka',
     title: 'AI Engineer | LLM Applications & Agentic Systems',
     intro:
-      'I build AI-powered applications using LLMs, structured outputs, and intelligent workflows. My focus is turning AI capabilities into reliable, production-oriented software with clear validation, human oversight, and robust backend architecture.'
+      'I build AI-powered applications using LLMs, structured outputs, and intelligent workflows. My focus is turning AI capabilities into reliable, production-oriented software with clear validation, human oversight, and robust backend architecture.',
     emailCta: 'Email me',
     githubCta: 'GitHub',
     location: 'Warsaw, PL',
