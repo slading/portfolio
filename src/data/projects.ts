@@ -29,6 +29,17 @@ export interface Project {
 
 export const featured: Project[] = [
   {
+    id: 'sentinel',
+    status: 'prototype',
+    anchor: 'project-sentinel',
+    image: 'assets/sentinel.png',
+    links: [
+      { label: 'live', href: 'https://sentinel-ai-ten-nu.vercel.app' },
+      { label: 'github', href: 'https://github.com/slading/SentinelAI' },
+    ],
+    stack: ['python', 'fastapi', 'pydantic', 'groq', 'docker', 'vercel'],
+  },
+  {
     id: 'n2d',
     status: 'production',
     anchor: 'project-n2d',
@@ -48,17 +59,7 @@ export const featured: Project[] = [
     links: [{ label: 'github', href: 'https://github.com/slading/ai-rfq-operations-agent' }],
     stack: [],
   },
-  {
-    id: 'sentinel',
-    status: 'prototype',
-    anchor: 'project-sentinel',
-    image: 'assets/sentinel.png',
-    links: [
-      { label: 'live', href: 'https://sentinel-ai-ten-nu.vercel.app' },
-      { label: 'github', href: 'https://github.com/slading/SentinelAI' },
-    ],
-    stack: ['python', 'fastapi', 'pydantic', 'groq', 'docker', 'vercel'],
-  },
+
 ];
 
 export const additional: Project[] = [
