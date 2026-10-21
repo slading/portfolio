@@ -9,13 +9,13 @@
  */
 export const en = {
   meta: {
-    title: 'Yauheni Buka | AI-native Software / Product Engineer',
+    title: 'Yauheni Buka | AI Engineer | Applied AI & Backend Systems',
     resumeTitle: 'Resume | Yauheni Buka',
     favouritesTitle: 'Favourite Movies | Yauheni Buka',
     blogTitle: 'Journal | Yauheni Buka',
     notFoundTitle: 'Page not found | Yauheni Buka',
     description:
-      'AI-native software and product engineer. Booking systems, AI-assisted tools and engineering case studies.',
+      'Applied AI engineer building LLM-powered applications, backend systems and real-world software. Python, FastAPI, TypeScript and structured LLM outputs.',
     blogDescription: 'Personal notes on life, engineering, experiments, business and building in public.',
   },
 
@@ -57,7 +57,7 @@ export const en = {
     name: 'Yauheni Buka',
     title: 'AI-native Software / Product Engineer',
     intro:
-      'I build production software and AI-assisted tools: booking systems, risk-analysis dashboards and the engineering behind them.',
+      'I build AI-powered applications and reliable backend systems. My work spans LLM integrations, structured AI outputs, API development and real-world business software.',
     emailCta: 'Email me',
     githubCta: 'GitHub',
     location: 'Warsaw, PL',

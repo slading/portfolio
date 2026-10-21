@@ -7,13 +7,13 @@ import type { Messages } from './en';
 
 export const pl: Messages = {
   meta: {
-    title: 'Yauheni Buka | AI-native Software / Product Engineer',
+    title: 'Yauheni Buka | AI Engineer | Applied AI & Backend Systems',
     resumeTitle: 'CV | Yauheni Buka',
     favouritesTitle: 'Ulubione filmy | Yauheni Buka',
     blogTitle: 'Dziennik | Yauheni Buka',
     notFoundTitle: 'Nie znaleziono strony | Yauheni Buka',
     description:
-      'Inżynier oprogramowania i produktu AI-native. Systemy rezerwacji, narzędzia wspierane AI i studia przypadków inżynierskich.',
+      'Inżynier Applied AI tworzący aplikacje oparte na LLM, systemy backendowe i oprogramowanie dla rzeczywistych firm. Python, FastAPI, TypeScript i ustrukturyzowane wyniki LLM.',
     blogDescription: 'Osobiste notatki o życiu, inżynierii, eksperymentach, biznesie i budowaniu publicznie.',
   },
 
@@ -55,7 +55,7 @@ export const pl: Messages = {
     name: 'Yauheni Buka',
     title: 'AI-native Software / Product Engineer',
     intro:
-      'Buduję produkcyjne oprogramowanie i narzędzia wspierane AI: systemy rezerwacji, panele analizy ryzyka i inżynierię, która za nimi stoi.',
+      'Tworzę aplikacje wykorzystujące AI i niezawodne systemy backendowe. Łączę integracje LLM, ustrukturyzowane wyniki AI, API oraz oprogramowanie dla rzeczywistych firm.',
     emailCta: 'Napisz do mnie',
     githubCta: 'GitHub',
     location: 'Warszawa, PL',
