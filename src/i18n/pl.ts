@@ -53,9 +53,9 @@ export const pl: Messages = {
 
   hero: {
     name: 'Yauheni Buka',
-    title: 'AI-native Software / Product Engineer',
+    title: 'AI Engineer | Aplikacje LLM i systemy agentowe',
     intro:
-      'Tworzę aplikacje wykorzystujące AI i niezawodne systemy backendowe. Łączę integracje LLM, ustrukturyzowane wyniki AI, API oraz oprogramowanie dla rzeczywistych firm.',
+      'Tworzę aplikacje AI wykorzystujące modele językowe (LLM), ustrukturyzowane wyniki i inteligentne przepływy pracy. Skupiam się na przekładaniu możliwości AI na niezawodne oprogramowanie projektowane z myślą o wdrożeniu, z walidacją, nadzorem człowieka i solidną architekturą backendową.'
     emailCta: 'Napisz do mnie',
     githubCta: 'GitHub',
     location: 'Warszawa, PL',
